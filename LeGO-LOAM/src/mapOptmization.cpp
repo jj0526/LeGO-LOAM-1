@@ -771,44 +771,41 @@ public:
             }
         }
 
-        if (!groundMat.empty()) {
-            mappedgroundCloud->clear();
+        for (size_t i = 0; i <= groundScanInd; ++i) {
+            for (size_t j = 0; j < Horizon_SCAN; ++j) {
+                if (groundMat.at<int8_t>(i, j) == 1 && globalMapKeyFramesDS->points[j + i * Horizon_SCAN].intensity != -1) {
+                    PointType point = globalMapKeyFramesDS->points[j + i * Horizon_SCAN];
+                    mappedgroundCloud->push_back(point);
+                }
+            }
+        }
+
+        if (!mappedgroundCloud->empty()) {
+            pcl::PointCloud<PointType>::Ptr filteredMappedGround(new pcl::PointCloud<PointType>());
+            pcl::PointIndices::Ptr groundIndices(new pcl::PointIndices());
+
+            // Set the indices of the non-ground points
             for (size_t i = 0; i <= groundScanInd; ++i) {
                 for (size_t j = 0; j < Horizon_SCAN; ++j) {
-                    if (groundMat.at<int8_t>(i, j) == 1 && globalMapKeyFramesDS->points[j + i * Horizon_SCAN].intensity != -1) {
-                        PointType point = globalMapKeyFramesDS->points[j + i * Horizon_SCAN];
-                        mappedgroundCloud->push_back(point);
+                    if (groundMat.at<int8_t>(i, j) != 1) { // Add this condition to exclude ground points
+                        groundIndices->indices.push_back(j + i * Horizon_SCAN); // Corrected indexing
                     }
                 }
             }
 
-            if (!mappedgroundCloud->empty()) {
-                pcl::PointCloud<PointType>::Ptr filteredMappedGround(new pcl::PointCloud<PointType>());
-                pcl::PointIndices::Ptr groundIndices(new pcl::PointIndices());
+            pcl::ExtractIndices<PointType> extract;
+            extract.setInputCloud(mappedgroundCloud); // Use the mapped ground cloud
+            extract.setIndices(groundIndices);
+            extract.setNegative(true); // Set to true to extract non-ground points
+            extract.filter(*filteredMappedGround);
 
-                // Set the indices of the non-ground points
-                for (size_t i = 0; i < mappedgroundCloud->size(); ++i) {
-                    if (groundMat.at<int8_t>(i, j) != 1) { // Add this condition to exclude ground points
-                        groundIndices->indices.push_back(i); // Corrected indexing
-                    }
-                }
-
-                pcl::ExtractIndices<PointType> extract;
-                extract.setInputCloud(mappedgroundCloud); // Use the mapped ground cloud
-                extract.setIndices(groundIndices);
-                extract.setNegative(true); // Set to true to extract non-ground points
-                extract.filter(*filteredMappedGround);
-
-                if (!filteredMappedGround->empty()) {
-                    pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
-                } else {
-                    std::cout << "All points are ground points!" << std::endl;
-                }
+            if (!filteredMappedGround->empty()) {
+                pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
             } else {
-                std::cout << "No ground points found!" << std::endl;
+                std::cout << "All points are ground points!" << std::endl;
             }
         } else {
-            mappedgroundCloud->clear(); // If groundMat is empty, clear the point cloud
+            std::cout << "No ground points found!" << std::endl;
         }
 
         
