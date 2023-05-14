@@ -786,21 +786,23 @@ public:
                 pcl::PointCloud<PointType>::Ptr filteredMappedGround(new pcl::PointCloud<PointType>());
                 pcl::PointIndices::Ptr groundIndices(new pcl::PointIndices());
 
-                // Set the indices of the ground points
+                // Set the indices of the non-ground points
                 for (size_t i = 0; i < mappedgroundCloud->size(); ++i) {
-                    groundIndices->indices.push_back(j + i * Horizon_SCAN); // Corrected indexing
+                    if (groundMat.at<int8_t>(i, j) != 1) { // Add this condition to exclude ground points
+                        groundIndices->indices.push_back(i); // Corrected indexing
+                    }
                 }
 
                 pcl::ExtractIndices<PointType> extract;
-                extract.setInputCloud(globalMapKeyFramesDS); // Use the original point cloud
+                extract.setInputCloud(mappedgroundCloud); // Use the mapped ground cloud
                 extract.setIndices(groundIndices);
-                extract.setNegative(false);
+                extract.setNegative(true); // Set to true to extract non-ground points
                 extract.filter(*filteredMappedGround);
 
                 if (!filteredMappedGround->empty()) {
                     pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
                 } else {
-                    std::cout << "No ground points found!" << std::endl;
+                    std::cout << "All points are ground points!" << std::endl;
                 }
             } else {
                 std::cout << "No ground points found!" << std::endl;
