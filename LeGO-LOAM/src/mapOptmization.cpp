@@ -728,12 +728,14 @@ public:
     void visualizeGlobalMapThread(){
 
         groundMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_8S, cv::Scalar::all(0));
+
         // Reset groundMat parameters
         ros::Rate rate(0.2);
-        while (ros::ok()){
+        while (ros::ok()) {
             rate.sleep();
             publishGlobalMap();
         }
+
         // Save final point cloud
         pcl::io::savePCDFileASCII(fileDirectory + "finalCloud.pcd", *globalMapKeyFramesDS);
 
@@ -741,20 +743,20 @@ public:
 
         size_t lowerInd, upperInd;
         float diffX, diffY, diffZ, angle;
+
         // groundMat
         // -1, no valid info to check if ground or not
         //  0, initial value, after validation, means not ground
         //  1, ground
-        for (size_t j = 0; j < Horizon_SCAN; ++j){
-            for (size_t i = 0; i < groundScanInd; ++i){
-
+        for (size_t j = 0; j < Horizon_SCAN; ++j) {
+            for (size_t i = 0; i < groundScanInd; ++i) {
                 lowerInd = j + (i) * Horizon_SCAN;
                 upperInd = j + (i + 1) * Horizon_SCAN;
 
                 if (globalMapKeyFramesDS->points[lowerInd].intensity == -1 ||
-                    globalMapKeyFramesDS->points[upperInd].intensity == -1){
+                    globalMapKeyFramesDS->points[upperInd].intensity == -1) {
                     // no info to check, invalid points
-                    groundMat.at<int8_t>(i,j) = -1;
+                    groundMat.at<int8_t>(i, j) = -1;
                     continue;
                 }
 
@@ -764,9 +766,9 @@ public:
 
                 angle = atan2(diffZ, sqrt(diffX * diffX + diffY * diffY)) * 180 / M_PI;
 
-                if (abs(angle - sensorMountAngle) <= 10){
-                    groundMat.at<int8_t>(i,j) = 1;
-                    groundMat.at<int8_t>(i+1,j) = 1;
+                if (abs(angle - sensorMountAngle) <= 10) {
+                    groundMat.at<int8_t>(i, j) = 1;
+                    groundMat.at<int8_t>(i + 1, j) = 1;
                 }
             }
         }
@@ -790,7 +792,6 @@ public:
         } else {
             std::cout << "No ground points found!" << std::endl;
         }
-
         
         //////////////////////////////////////////////////////////
 
