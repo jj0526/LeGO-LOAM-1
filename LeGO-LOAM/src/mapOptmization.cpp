@@ -41,7 +41,7 @@
 #include <gtsam/nonlinear/LevenbergMarquardtOptimizer.h>
 #include <gtsam/nonlinear/Marginals.h>
 #include <gtsam/nonlinear/Values.h>
-
+#include <pcl/filters/extract_indices.h>
 #include <gtsam/nonlinear/ISAM2.h>
 
 using namespace gtsam;
