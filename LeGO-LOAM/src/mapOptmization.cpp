@@ -739,7 +739,7 @@ public:
         // Save final point cloud
         pcl::io::savePCDFileASCII(fileDirectory + "finalCloud.pcd", *globalMapKeyFramesDS);
 
-        //////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////
 
         size_t lowerInd, upperInd;
         float diffX, diffY, diffZ, angle;
@@ -787,12 +787,18 @@ public:
             }
         }
 
+        // Extract ground points using groundIndices
+        pcl::PointCloud<PointType>::Ptr groundPointCloud(new pcl::PointCloud<PointType>());
+        pcl::ExtractIndices<PointType> extract;
+        extract.setInputCloud(globalMapKeyFramesDS);
+        extract.setIndices(groundIndices);
+        extract.filter(*groundPointCloud);
+
         if (!filteredMappedGround->empty()) {
             pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
         } else {
-            std::cout << "No ground points found!" << std::endl;
+            std::cout << "No ground points found!" <<
         }
-        
         //////////////////////////////////////////////////////////
 
 
