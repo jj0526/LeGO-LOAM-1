@@ -779,11 +779,6 @@ public:
                         PointType point = globalMapKeyFramesDS->points[j + i*Horizon_SCAN];
                         mappedgroundCloud->push_back(point);
                     }
-                    else {
-                        PointType point;
-                        point.x = point.y = point.z = std::numeric_limits<float>::quiet_NaN();
-                        mappedgroundCloud->push_back(point);
-                    }
                 }
             }
         }
@@ -791,8 +786,15 @@ public:
             mappedgroundCloud->clear();// If groundMat is empty, clear the point cloud
         }
 
+        pcl::PointCloud<PointType>::Ptr filteredMappedGround(new pcl::PointCloud<PointType>());
+        pcl::PointIndices::Ptr groundIndices(new pcl::PointIndices());
+        pcl::ExtractIndices<PointType> extract;
+        extract.setInputCloud(mappedgroundCloud);
+        extract.setIndices(groundIndices);
+        extract.setNegative(false);
+        extract.filter(*filteredMappedGround);
 
-        pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *mappedgroundCloud);
+        pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
 
 
         //////////////////////////////////////////////////////////
