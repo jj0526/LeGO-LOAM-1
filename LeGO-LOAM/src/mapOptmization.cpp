@@ -770,15 +770,13 @@ public:
                 }
             }
         }
-        // extract ground cloud (groundMat == 1)
-        // mark entry that doesn't need to label (ground and invalid point) for segmentation
-        // note that ground remove is from 0~N_SCAN-1, need rangeMat for mark label matrix for the 16th scan
         
         if (!groundMat.empty()){
             for (size_t i = 0; i <= groundScanInd; ++i){
                 for (size_t j = 0; j < Horizon_SCAN; ++j){
                     if (groundMat.at<int8_t>(i,j) == 1)
-                        mappedgroundCloud->push_back(globalMapKeyFramesDS->points[j + i*Horizon_SCAN]);
+                        PointType point = globalMapKeyFramesDS->points[j + i*Horizon_SCAN];
+                        mappedgroundCloud->push_back(globalMapKeyFramesDS->points[j + i*point]);
                 }
             }
         }
