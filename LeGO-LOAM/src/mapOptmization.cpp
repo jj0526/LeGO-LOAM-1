@@ -728,28 +728,28 @@ public:
     void visualizeGlobalMapThread(){
 
         groundMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_8S, cv::Scalar::all(0));
-        //reset groundMat parameters
+        // Reset groundMat parameters
         ros::Rate rate(0.2);
         while (ros::ok()){
             rate.sleep();
             publishGlobalMap();
         }
-        // save final point cloud
-        pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
+        // Save final point cloud
+        pcl::io::savePCDFileASCII(fileDirectory + "finalCloud.pcd", *globalMapKeyFramesDS);
 
         //////////////////////////////////////////////////////////
 
         size_t lowerInd, upperInd;
         float diffX, diffY, diffZ, angle;
         // groundMat
-        // -1, no valid info to check if ground of not
+        // -1, no valid info to check if ground or not
         //  0, initial value, after validation, means not ground
         //  1, ground
         for (size_t j = 0; j < Horizon_SCAN; ++j){
             for (size_t i = 0; i < groundScanInd; ++i){
 
-                lowerInd = j + ( i )*Horizon_SCAN;
-                upperInd = j + (i+1)*Horizon_SCAN;
+                lowerInd = j + (i) * Horizon_SCAN;
+                upperInd = j + (i + 1) * Horizon_SCAN;
 
                 if (globalMapKeyFramesDS->points[lowerInd].intensity == -1 ||
                     globalMapKeyFramesDS->points[upperInd].intensity == -1){
@@ -762,7 +762,7 @@ public:
                 diffY = globalMapKeyFramesDS->points[upperInd].y - globalMapKeyFramesDS->points[lowerInd].y;
                 diffZ = globalMapKeyFramesDS->points[upperInd].z - globalMapKeyFramesDS->points[lowerInd].z;
 
-                angle = atan2(diffZ, sqrt(diffX*diffX + diffY*diffY) ) * 180 / M_PI;
+                angle = atan2(diffZ, sqrt(diffX * diffX + diffY * diffY)) * 180 / M_PI;
 
                 if (abs(angle - sensorMountAngle) <= 10){
                     groundMat.at<int8_t>(i,j) = 1;
@@ -771,39 +771,22 @@ public:
             }
         }
 
+        pcl::PointCloud<PointType>::Ptr filteredMappedGround(new pcl::PointCloud<PointType>());
+        pcl::PointIndices::Ptr groundIndices(new pcl::PointIndices());
+
+        // Set the indices of the ground points
         for (size_t i = 0; i <= groundScanInd; ++i) {
             for (size_t j = 0; j < Horizon_SCAN; ++j) {
                 if (groundMat.at<int8_t>(i, j) == 1 && globalMapKeyFramesDS->points[j + i * Horizon_SCAN].intensity != -1) {
                     PointType point = globalMapKeyFramesDS->points[j + i * Horizon_SCAN];
-                    mappedgroundCloud->push_back(point);
+                    filteredMappedGround->push_back(point);
+                    groundIndices->indices.push_back(j + i * Horizon_SCAN);
                 }
             }
         }
 
-        if (!mappedgroundCloud->empty()) {
-            pcl::PointCloud<PointType>::Ptr filteredMappedGround(new pcl::PointCloud<PointType>());
-            pcl::PointIndices::Ptr groundIndices(new pcl::PointIndices());
-
-            // Set the indices of the non-ground points
-            for (size_t i = 0; i <= groundScanInd; ++i) {
-                for (size_t j = 0; j < Horizon_SCAN; ++j) {
-                    if (groundMat.at<int8_t>(i, j) != 1) { // Add this condition to exclude ground points
-                        groundIndices->indices.push_back(j + i * Horizon_SCAN); // Corrected indexing
-                    }
-                }
-            }
-
-            pcl::ExtractIndices<PointType> extract;
-            extract.setInputCloud(mappedgroundCloud); // Use the mapped ground cloud
-            extract.setIndices(groundIndices);
-            extract.setNegative(true); // Set to true to extract non-ground points
-            extract.filter(*filteredMappedGround);
-
-            if (!filteredMappedGround->empty()) {
-                pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
-            } else {
-                std::cout << "All points are ground points!" << std::endl;
-            }
+        if (!filteredMappedGround->empty()) {
+            pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
         } else {
             std::cout << "No ground points found!" << std::endl;
         }
