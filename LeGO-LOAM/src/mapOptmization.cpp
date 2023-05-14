@@ -32,7 +32,7 @@
 //   T. Shan and B. Englot. LeGO-LOAM: Lightweight and Ground-Optimized Lidar Odometry and Mapping on Variable Terrain
 //      IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS). October 2018.
 #include "utility.h"
-
+#include <pcl/segmentation/sac_segmentation.h>
 #include <gtsam/geometry/Rot3.h>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/slam/PriorFactor.h>
@@ -695,108 +695,67 @@ public:
 
     void publishKeyPosesAndFrames(){
 
-        if (pubKeyPoses.getNumSubscribers() != 0){
-            sensor_msgs::PointCloud2 cloudMsgTemp;
-            pcl::toROSMsg(*cloudKeyPoses3D, cloudMsgTemp);
-            cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-            cloudMsgTemp.header.frame_id = "camera_init";
-            pubKeyPoses.publish(cloudMsgTemp);
-        }
-
-        if (pubRecentKeyFrames.getNumSubscribers() != 0){
-            sensor_msgs::PointCloud2 cloudMsgTemp;
-            pcl::toROSMsg(*laserCloudSurfFromMapDS, cloudMsgTemp);
-            cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-            cloudMsgTemp.header.frame_id = "camera_init";
-            pubRecentKeyFrames.publish(cloudMsgTemp);
-        }
-
-        if (pubRegisteredCloud.getNumSubscribers() != 0){
-            pcl::PointCloud<PointType>::Ptr cloudOut(new pcl::PointCloud<PointType>());
-            PointTypePose thisPose6D = trans2PointTypePose(transformTobeMapped);
-            *cloudOut += *transformPointCloud(laserCloudCornerLastDS,  &thisPose6D);
-            *cloudOut += *transformPointCloud(laserCloudSurfTotalLast, &thisPose6D);
-            
-            sensor_msgs::PointCloud2 cloudMsgTemp;
-            pcl::toROSMsg(*cloudOut, cloudMsgTemp);
-            cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-            cloudMsgTemp.header.frame_id = "camera_init";
-            pubRegisteredCloud.publish(cloudMsgTemp);
-        } 
-    }
-
-    void visualizeGlobalMapThread(){
-
-        groundMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_8S, cv::Scalar::all(0));
-
-        // Reset groundMat parameters
-        ros::Rate rate(0.2);
-        while (ros::ok()) {
-            rate.sleep();
-            publishGlobalMap();
-        }
-
-        // Save final point cloud
-        pcl::io::savePCDFileASCII(fileDirectory + "finalCloud.pcd", *globalMapKeyFramesDS);
-
-        //////////////////////////////////////////////////////////////
-
-        size_t lowerInd, upperInd;
-        float diffX, diffY, diffZ, angle;
-
-        // groundMat
-        // -1, no valid info to check if ground or not
-        //  0, initial value, after validation, means not ground
-        //  1, ground
-        for (size_t j = 0; j < Horizon_SCAN; ++j) {
-            for (size_t i = 0; i < groundScanInd; ++i) {
-                lowerInd = j + (i) * Horizon_SCAN;
-                upperInd = j + (i + 1) * Horizon_SCAN;
-
-                if (globalMapKeyFramesDS->points[lowerInd].intensity == -1 ||
-                    globalMapKeyFramesDS->points[upperInd].intensity == -1) {
-                    // no info to check, invalid points
-                    groundMat.at<int8_t>(i, j) = -1;
-                    continue;
-                }
-
-                diffX = globalMapKeyFramesDS->points[upperInd].x - globalMapKeyFramesDS->points[lowerInd].x;
-                diffY = globalMapKeyFramesDS->points[upperInd].y - globalMapKeyFramesDS->points[lowerInd].y;
-                diffZ = globalMapKeyFramesDS->points[upperInd].z - globalMapKeyFramesDS->points[lowerInd].z;
-
-                angle = atan2(diffZ, sqrt(diffX * diffX + diffY * diffY)) * 180 / M_PI;
-
-                if (abs(angle - sensorMountAngle) <= 10) {
-                    groundMat.at<int8_t>(i, j) = 1;
-                    groundMat.at<int8_t>(i + 1, j) = 1;
-                }
+            if (pubKeyPoses.getNumSubscribers() != 0){
+                sensor_msgs::PointCloud2 cloudMsgTemp;
+                pcl::toROSMsg(*cloudKeyPoses3D, cloudMsgTemp);
+                cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
+                cloudMsgTemp.header.frame_id = "camera_init";
+                pubKeyPoses.publish(cloudMsgTemp);
             }
-        }
 
-        pcl::PointCloud<PointType>::Ptr filteredMappedGround(new pcl::PointCloud<PointType>());
-        pcl::PointIndices::Ptr groundIndices(new pcl::PointIndices());
-
-        // Set the indices of the ground points
-        for (size_t i = 0; i <= groundScanInd; ++i) {
-            for (size_t j = 0; j < Horizon_SCAN; ++j) {
-                if (groundMat.at<int8_t>(i, j) == 1 && globalMapKeyFramesDS->points[j + i * Horizon_SCAN].intensity != -1) {
-                    PointType point = globalMapKeyFramesDS->points[j + i * Horizon_SCAN];
-                    filteredMappedGround->push_back(point);
-                    groundIndices->indices.push_back(j + i * Horizon_SCAN);
-                }
+            if (pubRecentKeyFrames.getNumSubscribers() != 0){
+                sensor_msgs::PointCloud2 cloudMsgTemp;
+                pcl::toROSMsg(*laserCloudSurfFromMapDS, cloudMsgTemp);
+                cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
+                cloudMsgTemp.header.frame_id = "camera_init";
+                pubRecentKeyFrames.publish(cloudMsgTemp);
             }
+
+            if (pubRegisteredCloud.getNumSubscribers() != 0){
+                pcl::PointCloud<PointType>::Ptr cloudOut(new pcl::PointCloud<PointType>());
+                PointTypePose thisPose6D = trans2PointTypePose(transformTobeMapped);
+                *cloudOut += *transformPointCloud(laserCloudCornerLastDS,  &thisPose6D);
+                *cloudOut += *transformPointCloud(laserCloudSurfTotalLast, &thisPose6D);
+                
+                sensor_msgs::PointCloud2 cloudMsgTemp;
+                pcl::toROSMsg(*cloudOut, cloudMsgTemp);
+                cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
+                cloudMsgTemp.header.frame_id = "camera_init";
+                pubRegisteredCloud.publish(cloudMsgTemp);
+            } 
         }
 
-        // Extract ground points using groundIndices
-        pcl::PointCloud<PointType>::Ptr groundPointCloud(new pcl::PointCloud<PointType>());
-        pcl::ExtractIndices<PointType> extract;
-        extract.setInputCloud(globalMapKeyFramesDS);
-        extract.setIndices(groundIndices);
-        extract.filter(*groundPointCloud);
+        void visualizeGlobalMapThread(){
 
-        if (!filteredMappedGround->empty()) {
-            pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
-        }
+            pcl::PointCloud<PointType>::Ptr groundPointCloud(new pcl::PointCloud<PointType>());
+
+            // Set the parameters for RANSAC ground segmentation
+            pcl::SACSegmentation<PointType> seg;
+            seg.setOptimizeCoefficients(true);
+            seg.setModelType(pcl::SACMODEL_PLANE);
+            seg.setMethodType(pcl::SAC_RANSAC);
+            seg.setMaxIterations(100);
+            seg.setDistanceThreshold(0.2); // Adjust this threshold as needed
+
+            // Perform RANSAC ground segmentation
+            pcl::PointIndices::Ptr inlierIndices(new pcl::PointIndices());
+            pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+            seg.setInputCloud(globalMapKeyFramesDS);
+            seg.segment(*inlierIndices, *coefficients);
+
+            // Extract ground points using inlier indices
+            pcl::ExtractIndices<PointType> extract;
+            extract.setInputCloud(globalMapKeyFramesDS);
+            extract.setIndices(inlierIndices);
+            extract.setNegative(false);
+            extract.filter(*groundPointCloud);
+
+            // Save ground point cloud
+            if (!groundPointCloud->empty()) {
+                pcl::io::savePCDFileASCII("/tmp/groundPointCloud.pcd", *groundPointCloud);
+            } else {
+                std::cout << "No ground points found!" << std::endl;
+            }
         //////////////////////////////////////////////////////////
 
 
