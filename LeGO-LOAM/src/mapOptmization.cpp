@@ -796,8 +796,6 @@ public:
 
         if (!filteredMappedGround->empty()) {
             pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
-        } else {
-            std::cout << "No ground points found!" <<
         }
         //////////////////////////////////////////////////////////
 
