@@ -32,7 +32,7 @@
 //   T. Shan and B. Englot. LeGO-LOAM: Lightweight and Ground-Optimized Lidar Odometry and Mapping on Variable Terrain
 //      IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS). October 2018.
 #include "utility.h"
-#include <pcl/segmentation/sac_segmentation.h>
+
 #include <gtsam/geometry/Rot3.h>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/slam/PriorFactor.h>
@@ -41,16 +41,16 @@
 #include <gtsam/nonlinear/LevenbergMarquardtOptimizer.h>
 #include <gtsam/nonlinear/Marginals.h>
 #include <gtsam/nonlinear/Values.h>
-#include <pcl/filters/extract_indices.h>
+
 #include <gtsam/nonlinear/ISAM2.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/filters/extract_indices.h>
 
 using namespace gtsam;
 
 class mapOptimization{
 
 private:
-    cv::Mat groundMat; // ground matrix for ground cloud marking
-    pcl::PointCloud<PointType>::Ptr mappedgroundCloud;
 
     NonlinearFactorGraph gtSAMgraph;
     Values initialEstimate;
@@ -268,8 +268,6 @@ public:
     }
 
     void allocateMemory(){
-
-        mappedgroundCloud.reset(new pcl::PointCloud<PointType>());
 
         cloudKeyPoses3D.reset(new pcl::PointCloud<PointType>());
         cloudKeyPoses6D.reset(new pcl::PointCloud<PointTypePose>());
@@ -695,93 +693,105 @@ public:
 
     void publishKeyPosesAndFrames(){
 
-            if (pubKeyPoses.getNumSubscribers() != 0){
-                sensor_msgs::PointCloud2 cloudMsgTemp;
-                pcl::toROSMsg(*cloudKeyPoses3D, cloudMsgTemp);
-                cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-                cloudMsgTemp.header.frame_id = "camera_init";
-                pubKeyPoses.publish(cloudMsgTemp);
-            }
-
-            if (pubRecentKeyFrames.getNumSubscribers() != 0){
-                sensor_msgs::PointCloud2 cloudMsgTemp;
-                pcl::toROSMsg(*laserCloudSurfFromMapDS, cloudMsgTemp);
-                cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-                cloudMsgTemp.header.frame_id = "camera_init";
-                pubRecentKeyFrames.publish(cloudMsgTemp);
-            }
-
-            if (pubRegisteredCloud.getNumSubscribers() != 0){
-                pcl::PointCloud<PointType>::Ptr cloudOut(new pcl::PointCloud<PointType>());
-                PointTypePose thisPose6D = trans2PointTypePose(transformTobeMapped);
-                *cloudOut += *transformPointCloud(laserCloudCornerLastDS,  &thisPose6D);
-                *cloudOut += *transformPointCloud(laserCloudSurfTotalLast, &thisPose6D);
-                
-                sensor_msgs::PointCloud2 cloudMsgTemp;
-                pcl::toROSMsg(*cloudOut, cloudMsgTemp);
-                cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-                cloudMsgTemp.header.frame_id = "camera_init";
-                pubRegisteredCloud.publish(cloudMsgTemp);
-            } 
+        if (pubKeyPoses.getNumSubscribers() != 0){
+            sensor_msgs::PointCloud2 cloudMsgTemp;
+            pcl::toROSMsg(*cloudKeyPoses3D, cloudMsgTemp);
+            cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
+            cloudMsgTemp.header.frame_id = "camera_init";
+            pubKeyPoses.publish(cloudMsgTemp);
         }
 
-        void visualizeGlobalMapThread() {
-            pcl::PointCloud<PointType>::Ptr groundPointCloud(new pcl::PointCloud<PointType>());
-
-            // Set the parameters for RANSAC ground segmentation
-            pcl::SACSegmentation<PointType> seg;
-            seg.setOptimizeCoefficients(true);
-            seg.setModelType(pcl::SACMODEL_PLANE);
-            seg.setMethodType(pcl::SAC_RANSAC);
-            seg.setMaxIterations(100);
-            seg.setDistanceThreshold(0.2); // Adjust this threshold as needed
-
-            // Perform RANSAC ground segmentation
-            pcl::PointIndices::Ptr inlierIndices(new pcl::PointIndices());
-            pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
-            seg.setInputCloud(globalMapKeyFramesDS);
-            seg.segment(*inlierIndices, *coefficients);
-
-            // Extract ground points using inlier indices
-            pcl::ExtractIndices<PointType> extract;
-            extract.setInputCloud(globalMapKeyFramesDS);
-            extract.setIndices(inlierIndices);
-            extract.setNegative(false);
-            extract.filter(*groundPointCloud);
-
-            // Save ground point cloud
-            if (!groundPointCloud->empty()) {
-                pcl::io::savePCDFileASCII("/tmp/groundPointCloud.pcd", *groundPointCloud);
-            } else {
-                std::cout << "No ground points found!" << std::endl;
-            }
-
-            //////////////////////////////////////////////////////////
-
-            string cornerMapString = "/tmp/cornerMap.pcd";
-            string surfaceMapString = "/tmp/surfaceMap.pcd";
-            string trajectoryString = "/tmp/trajectory.pcd";
-
-            pcl::PointCloud<PointType>::Ptr cornerMapCloud(new pcl::PointCloud<PointType>());
-            pcl::PointCloud<PointType>::Ptr cornerMapCloudDS(new pcl::PointCloud<PointType>());
-            pcl::PointCloud<PointType>::Ptr surfaceMapCloud(new pcl::PointCloud<PointType>());
-            pcl::PointCloud<PointType>::Ptr surfaceMapCloudDS(new pcl::PointCloud<PointType>());
-
-            for (int i = 0; i < cornerCloudKeyFrames.size(); i++) {
-                *cornerMapCloud += *transformPointCloud(cornerCloudKeyFrames[i], &cloudKeyPoses6D->points[i]);
-                *surfaceMapCloud += *transformPointCloud(surfCloudKeyFrames[i], &cloudKeyPoses6D->points[i]);
-                *surfaceMapCloud += *transformPointCloud(outlierCloudKeyFrames[i], &cloudKeyPoses6D->points[i]);
-            }
-
-            downSizeFilterCorner.setInputCloud(cornerMapCloud);
-            downSizeFilterCorner.filter(*cornerMapCloudDS);
-            downSizeFilterSurf.setInputCloud(surfaceMapCloud);
-            downSizeFilterSurf.filter(*surfaceMapCloudDS);
-
-            pcl::io::savePCDFileASCII(fileDirectory + "cornerMap.pcd", *cornerMapCloudDS);
-            pcl::io::savePCDFileASCII(fileDirectory + "surfaceMap.pcd", *surfaceMapCloudDS);
-            pcl::io::savePCDFileASCII(fileDirectory + "trajectory.pcd", *cloudKeyPoses3D);
+        if (pubRecentKeyFrames.getNumSubscribers() != 0){
+            sensor_msgs::PointCloud2 cloudMsgTemp;
+            pcl::toROSMsg(*laserCloudSurfFromMapDS, cloudMsgTemp);
+            cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
+            cloudMsgTemp.header.frame_id = "camera_init";
+            pubRecentKeyFrames.publish(cloudMsgTemp);
         }
+
+        if (pubRegisteredCloud.getNumSubscribers() != 0){
+            pcl::PointCloud<PointType>::Ptr cloudOut(new pcl::PointCloud<PointType>());
+            PointTypePose thisPose6D = trans2PointTypePose(transformTobeMapped);
+            *cloudOut += *transformPointCloud(laserCloudCornerLastDS,  &thisPose6D);
+            *cloudOut += *transformPointCloud(laserCloudSurfTotalLast, &thisPose6D);
+            
+            sensor_msgs::PointCloud2 cloudMsgTemp;
+            pcl::toROSMsg(*cloudOut, cloudMsgTemp);
+            cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
+            cloudMsgTemp.header.frame_id = "camera_init";
+            pubRegisteredCloud.publish(cloudMsgTemp);
+        } 
+    }
+
+    void visualizeGlobalMapThread(){
+        ros::Rate rate(0.2);
+        while (ros::ok()){
+            rate.sleep();
+            publishGlobalMap();
+        }
+        // save final point cloud
+        pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
+        //////////////////////////////////////////////////////
+        pcl::PointCloud<PointType>::Ptr groundPointCloud(new pcl::PointCloud<PointType>());
+
+        // Set the parameters for RANSAC ground segmentation
+        pcl::SACSegmentation<PointType> seg;
+        seg.setOptimizeCoefficients(true);
+        seg.setModelType(pcl::SACMODEL_PLANE);
+        seg.setMethodType(pcl::SAC_RANSAC);
+        seg.setMaxIterations(100);
+        seg.setDistanceThreshold(0.2); // Adjust this threshold as needed
+
+        // Perform RANSAC ground segmentation
+        pcl::PointIndices::Ptr inlierIndices(new pcl::PointIndices());
+        pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+        seg.setInputCloud(globalMapKeyFramesDS);
+        seg.segment(*inlierIndices, *coefficients);
+
+        // Extract ground points using inlier indices
+        pcl::ExtractIndices<PointType> extract;
+        extract.setInputCloud(globalMapKeyFramesDS);
+        extract.setIndices(inlierIndices);
+        extract.setNegative(false);
+        extract.filter(*groundPointCloud);
+
+        // Save ground point cloud
+        if (!groundPointCloud->empty()) {
+            pcl::io::savePCDFileASCII("/tmp/groundPointCloud.pcd", *groundPointCloud);
+        } else {
+            std::cout << "No ground points found!" << std::endl;
+        }
+
+
+
+
+
+        ///////////////////////////////////
+        string cornerMapString = "/tmp/cornerMap.pcd";
+        string surfaceMapString = "/tmp/surfaceMap.pcd";
+        string trajectoryString = "/tmp/trajectory.pcd";
+
+        pcl::PointCloud<PointType>::Ptr cornerMapCloud(new pcl::PointCloud<PointType>());
+        pcl::PointCloud<PointType>::Ptr cornerMapCloudDS(new pcl::PointCloud<PointType>());
+        pcl::PointCloud<PointType>::Ptr surfaceMapCloud(new pcl::PointCloud<PointType>());
+        pcl::PointCloud<PointType>::Ptr surfaceMapCloudDS(new pcl::PointCloud<PointType>());
+        
+        for(int i = 0; i < cornerCloudKeyFrames.size(); i++) {
+            *cornerMapCloud  += *transformPointCloud(cornerCloudKeyFrames[i],   &cloudKeyPoses6D->points[i]);
+    	    *surfaceMapCloud += *transformPointCloud(surfCloudKeyFrames[i],     &cloudKeyPoses6D->points[i]);
+    	    *surfaceMapCloud += *transformPointCloud(outlierCloudKeyFrames[i],  &cloudKeyPoses6D->points[i]);
+        }
+
+        downSizeFilterCorner.setInputCloud(cornerMapCloud);
+        downSizeFilterCorner.filter(*cornerMapCloudDS);
+        downSizeFilterSurf.setInputCloud(surfaceMapCloud);
+        downSizeFilterSurf.filter(*surfaceMapCloudDS);
+
+        pcl::io::savePCDFileASCII(fileDirectory+"cornerMap.pcd", *cornerMapCloudDS);
+        pcl::io::savePCDFileASCII(fileDirectory+"surfaceMap.pcd", *surfaceMapCloudDS);
+        pcl::io::savePCDFileASCII(fileDirectory+"trajectory.pcd", *cloudKeyPoses3D);
+    }
+
     void publishGlobalMap(){
 
         if (pubLaserCloudSurround.getNumSubscribers() == 0)
