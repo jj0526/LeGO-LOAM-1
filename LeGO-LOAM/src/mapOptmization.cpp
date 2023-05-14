@@ -779,8 +779,16 @@ public:
                         PointType point = globalMapKeyFramesDS->points[j + i*Horizon_SCAN];
                         mappedgroundCloud->push_back(point);
                     }
+                    else {
+                        PointType point;
+                        point.x = point.y = point.z = std::numeric_limits<float>::quiet_NaN();
+                        mappedgroundCloud->push_back(point);
+                    }
                 }
             }
+        }
+        else{
+            mappedgroundCloud->clear();// If groundMat is empty, clear the point cloud
         }
 
 
