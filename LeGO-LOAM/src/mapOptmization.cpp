@@ -776,7 +776,7 @@ public:
                 for (size_t j = 0; j < Horizon_SCAN; ++j){
                     if (groundMat.at<int8_t>(i,j) == 1)
                         PointType point = globalMapKeyFramesDS->points[j + i*Horizon_SCAN];
-                        mappedgroundCloud->push_back(globalMapKeyFramesDS->points[j + i*point]);
+                        mappedgroundCloud->push_back(point);
                 }
             }
         }
