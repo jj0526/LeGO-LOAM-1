@@ -788,17 +788,19 @@ public:
 
                 // Set the indices of the ground points
                 for (size_t i = 0; i < mappedgroundCloud->size(); ++i) {
-                    groundIndices->indices.push_back(i);
+                    groundIndices->indices.push_back(j + i * Horizon_SCAN); // Corrected indexing
                 }
 
                 pcl::ExtractIndices<PointType> extract;
-                extract.setInputCloud(mappedgroundCloud);
+                extract.setInputCloud(globalMapKeyFramesDS); // Use the original point cloud
                 extract.setIndices(groundIndices);
                 extract.setNegative(false);
                 extract.filter(*filteredMappedGround);
 
                 if (!filteredMappedGround->empty()) {
                     pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
+                } else {
+                    std::cout << "No ground points found!" << std::endl;
                 }
             } else {
                 std::cout << "No ground points found!" << std::endl;
