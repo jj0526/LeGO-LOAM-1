@@ -731,7 +731,7 @@ public:
 
         // Reset groundMat parameters
         ros::Rate rate(0.2);
-        while (ros::ok()){
+        while (ros::ok()) {
             rate.sleep();
             publishGlobalMap();
         }
@@ -743,20 +743,20 @@ public:
 
         size_t lowerInd, upperInd;
         float diffX, diffY, diffZ, angle;
+
         // groundMat
         // -1, no valid info to check if ground or not
         //  0, initial value, after validation, means not ground
         //  1, ground
-        for (size_t j = 0; j < Horizon_SCAN; ++j){
-            for (size_t i = 0; i < groundScanInd; ++i){
-
+        for (size_t j = 0; j < Horizon_SCAN; ++j) {
+            for (size_t i = 0; i < groundScanInd; ++i) {
                 lowerInd = j + (i) * Horizon_SCAN;
                 upperInd = j + (i + 1) * Horizon_SCAN;
 
                 if (globalMapKeyFramesDS->points[lowerInd].intensity == -1 ||
-                    globalMapKeyFramesDS->points[upperInd].intensity == -1){
+                    globalMapKeyFramesDS->points[upperInd].intensity == -1) {
                     // no info to check, invalid points
-                    groundMat.at<int8_t>(i,j) = -1;
+                    groundMat.at<int8_t>(i, j) = -1;
                     continue;
                 }
 
@@ -766,9 +766,9 @@ public:
 
                 angle = atan2(diffZ, sqrt(diffX * diffX + diffY * diffY)) * 180 / M_PI;
 
-                if (abs(angle - sensorMountAngle) <= 10){
-                    groundMat.at<int8_t>(i,j) = 1;
-                    groundMat.at<int8_t>(i+1,j) = 1;
+                if (abs(angle - sensorMountAngle) <= 10) {
+                    groundMat.at<int8_t>(i, j) = 1;
+                    groundMat.at<int8_t>(i + 1, j) = 1;
                 }
             }
         }
@@ -776,26 +776,19 @@ public:
         pcl::PointCloud<PointType>::Ptr filteredMappedGround(new pcl::PointCloud<PointType>());
         pcl::PointIndices::Ptr groundIndices(new pcl::PointIndices());
 
-        // Iterate over the point cloud and only keep the ground points
-        for (size_t i = 0; i < globalMapKeyFramesDS->size(); ++i) {
-            const PointType& point = globalMapKeyFramesDS->points[i];
-            size_t j = i % Horizon_SCAN;
-
-            if (groundMat.at<int8_t>(i / Horizon_SCAN, j) == 1 && point.intensity != -1) {
-                filteredMappedGround->push_back(point);
-                groundIndices->indices.push_back(i);
+        // Set the indices of the ground points
+        for (size_t i = 0; i <= groundScanInd; ++i) {
+            for (size_t j = 0; j < Horizon_SCAN; ++j) {
+                if (groundMat.at<int8_t>(i, j) == 1 && globalMapKeyFramesDS->points[j + i * Horizon_SCAN].intensity != -1) {
+                    PointType point = globalMapKeyFramesDS->points[j + i * Horizon_SCAN];
+                    filteredMappedGround->push_back(point);
+                    groundIndices->indices.push_back(j + i * Horizon_SCAN);
+                }
             }
         }
 
         if (!filteredMappedGround->empty()) {
-            pcl::PointCloud<PointType>::Ptr extractedGround(new pcl::PointCloud<PointType>());
-            pcl::ExtractIndices<PointType> extract;
-            extract.setInputCloud(globalMapKeyFramesDS);
-            extract.setIndices(groundIndices);
-            extract.setNegative(false);
-            extract.filter(*extractedGround);
-
-            pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *extractedGround);
+            pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
         } else {
             std::cout << "No ground points found!" << std::endl;
         }
