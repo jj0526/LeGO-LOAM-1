@@ -781,22 +781,29 @@ public:
                     }
                 }
             }
+            pcl::PointCloud<PointType>::Ptr filteredMappedGround(new pcl::PointCloud<PointType>());
+            pcl::PointIndices::Ptr groundIndices(new pcl::PointIndices());
+
+            
+            // Set the indices of the ground points
+            for (size_t i = 0; i < mappedgroundCloud->size(); ++i) {
+                groundIndices->indices.push_back(i);
+            }
+
+            pcl::ExtractIndices<PointType> extract;
+            extract.setInputCloud(mappedgroundCloud);
+            extract.setIndices(groundIndices);
+            extract.setNegative(false);
+            extract.filter(*filteredMappedGround);
+
+            pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
+
         }
         else{
             mappedgroundCloud->clear();// If groundMat is empty, clear the point cloud
         }
 
-        pcl::PointCloud<PointType>::Ptr filteredMappedGround(new pcl::PointCloud<PointType>());
-        pcl::PointIndices::Ptr groundIndices(new pcl::PointIndices());
-        pcl::ExtractIndices<PointType> extract;
-        extract.setInputCloud(mappedgroundCloud);
-        extract.setIndices(groundIndices);
-        extract.setNegative(false);
-        extract.filter(*filteredMappedGround);
-
-        pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *filteredMappedGround);
-
-
+        
         //////////////////////////////////////////////////////////
 
 
