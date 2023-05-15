@@ -49,22 +49,14 @@
 using namespace std;
 /// //////////////////////////////////
 
+#include <pcl/point_types.h>
 
-struct PointType
+struct PointXYZIGround : public pcl::PointXYZI
 {
-  PCL_ADD_POINT4D; // Add X, Y, Z fields from pcl::PointXYZI
-
-  float intensity; // Intensity field from pcl::PointXYZI
-  int isGround;    // Additional "isGround" field of type int
-
-  // Constructor
-  PointType()
-    : intensity(0.0f), isGround(0)
-  {
-  }
-
-  // Define additional constructors or member functions if needed
+  int Ground;  // Additional "Ground" field
 };
+
+typedef PointXYZIGround PointType;
 
 ////////////////////////////
 
