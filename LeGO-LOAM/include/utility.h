@@ -104,6 +104,7 @@ struct PointXYZIR
   PCL_ADD_POINT4D
   PCL_ADD_INTENSITY;
   uint16_t ring;
+  int isGround;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 } EIGEN_ALIGN16;
 
@@ -124,6 +125,7 @@ struct PointXYZIRPYT
   float pitch;
   float yaw;
   double time;
+  int isGround;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 } EIGEN_ALIGN16;
 
