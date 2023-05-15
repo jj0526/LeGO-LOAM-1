@@ -50,35 +50,21 @@ using namespace std;
 /// //////////////////////////////////
 
 
-struct PointXYZIGround
+struct PointType
 {
-  PCL_ADD_POINT4D;
-  float intensity;
-  int isGround;
+  PCL_ADD_POINT4D; // Add X, Y, Z fields from pcl::PointXYZI
+
+  float intensity; // Intensity field from pcl::PointXYZI
+  int isGround;    // Additional "isGround" field of type int
 
   // Constructor
-  PointXYZIGround()
+  PointType()
     : intensity(0.0f), isGround(0)
   {
   }
 
   // Define additional constructors or member functions if needed
 };
-
-// Add the necessary traits for the custom point type
-namespace pcl
-{
-    template <>
-    struct traits<PointXYZIGround> : public traits<pcl::PointXYZI>
-    {
-    using fieldList = pcl::traits::concatenate<
-        pcl::traits::fieldList<pcl::PointXYZI, float, int>,
-        pcl::traits::fieldList<float, &PointXYZIGround::intensity, int, &PointXYZIGround::isGround>>;
-    };
-}
-
-// Define the typedef using the custom point type
-typedef PointXYZIGround PointType;
 
 ////////////////////////////
 
