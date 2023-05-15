@@ -109,11 +109,12 @@ struct PointXYZIR
 } EIGEN_ALIGN16;
 
 POINT_CLOUD_REGISTER_POINT_STRUCT(PointXYZIR,
-                                  (float, x,)
+                                  (float, x, x)
   (float, y, y)
   (float, z, z)
   (float, intensity, intensity)
   (uint16_t, ring, ring)
+  (int, isGround, isGround)
 )
 
 // Point cloud type with 6D pose info
