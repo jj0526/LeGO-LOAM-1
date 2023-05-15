@@ -50,22 +50,12 @@ using namespace std;
 
 
 //////////////////////////
-struct PointXYZIGround
+struct PointXYZIGround : public pcl::PointXYZI
 {
-  PCL_ADD_POINT4D;              // X, Y, Z, and intensity fields
-  int Ground;                   // Additional "Ground" field
+  int isGround;  // Additional "Ground" field
 
   // Optional additional fields can be added here
-
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW   // Ensure proper alignment for the struct
 };
-
-// Update the original PointType typedef to use the new structure
-typedef PointXYZIGround PointType;
-
-// Define the typedef using the custom point type
-typedef PointXYZIGround PointType;
-
 //////////////////////////////
 
 extern const string pointCloudTopic = "/velodyne_points";
