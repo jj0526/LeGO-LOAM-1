@@ -50,8 +50,11 @@ using namespace std;
 
 typedef struct PointXYZIGround
 {
-  PCL_ADD_POINT4D;                   // Add X, Y, Z, and intensity fields from pcl::PointXYZI
-  int isGround;                        // Additional "Ground" field of type int
+  float x;
+  float y;
+  float z;
+  float intensity;
+  int isGround;
 
 } PointType;
 
