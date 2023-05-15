@@ -47,31 +47,21 @@
 #define PI 3.14159265
 
 using namespace std;
-//////////////////////////////
+
+
+//////////////////////////
 struct PointXYZIGround
 {
-  PCL_ADD_POINT4D; // Add X, Y, Z fields
-  float intensity;
-  int isGround;
+  PCL_ADD_POINT4D;              // X, Y, Z, and intensity fields
+  int Ground;                   // Additional "Ground" field
 
-  // Constructor
-  PointXYZIGround()
-    : intensity(0.0f), isGround(0)
-  {
-  }
+  // Optional additional fields can be added here
 
-  // Define additional constructors or member functions if needed
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW   // Ensure proper alignment for the struct
 };
 
-// Add the necessary traits for the custom point type
-namespace pcl
-{
-  template <>
-  struct traits<PointXYZIGround> : public traits<pcl::PointXYZI>
-  {
-    using fieldList = pcl::traits::concatenate<pcl::traits::fieldList<pcl::PointXYZI>, pcl::traits::fieldList<int, &PointXYZIGround::isGround>>;
-  };
-}
+// Update the original PointType typedef to use the new structure
+typedef PointXYZIGround PointType;
 
 // Define the typedef using the custom point type
 typedef PointXYZIGround PointType;
