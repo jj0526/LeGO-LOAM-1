@@ -47,21 +47,39 @@
 #define PI 3.14159265
 
 using namespace std;
-/////////////////////////////////////
+/// //////////////////////////////////
 
 
-#include <pcl/point_types.h>
-
-struct PointType
+struct PointXYZIGround
 {
-  PCL_ADD_POINT4D;                   // X, Y, Z fields from pcl::PointXYZI
-  float intensity;                    // Intensity field
-  float Ground;                       // Additional "Ground" field
+  PCL_ADD_POINT4D;
+  float intensity;
+  int isGround;
 
-  // Optional additional fields can be added here
+  // Constructor
+  PointXYZIGround()
+    : intensity(0.0f), isGround(0)
+  {
+  }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW    // Ensure proper alignment for the struct
+  // Define additional constructors or member functions if needed
 };
+
+// Add the necessary traits for the custom point type
+namespace pcl
+{
+    template <>
+    struct traits<PointXYZIGround> : public traits<pcl::PointXYZI>
+    {
+    using fieldList = pcl::traits::concatenate<
+        pcl::traits::fieldList<pcl::PointXYZI, float, int>,
+        pcl::traits::fieldList<float, &PointXYZIGround::intensity, int, &PointXYZIGround::isGround>>;
+    };
+}
+
+// Define the typedef using the custom point type
+typedef PointXYZIGround PointType;
+
 ////////////////////////////
 
 extern const string pointCloudTopic = "/velodyne_points";
