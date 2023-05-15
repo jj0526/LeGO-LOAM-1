@@ -53,7 +53,7 @@ using namespace std;
 
 struct PointXYZIGround : public pcl::PointXYZI
 {
-  int Ground;  // Additional "Ground" field
+  int isGround;  // Additional "isGround" field
 };
 
 typedef PointXYZIGround PointType;
