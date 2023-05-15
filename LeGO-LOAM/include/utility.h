@@ -56,6 +56,8 @@ struct PointXYZIGround : public pcl::PointXYZI
 
   // Optional additional fields can be added here
 };
+
+typedef PointXYZIGround PointType;
 //////////////////////////////
 
 extern const string pointCloudTopic = "/velodyne_points";
