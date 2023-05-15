@@ -50,17 +50,18 @@ using namespace std;
 /////////////////////////////////////
 
 
-struct PointType : pcl::PointXYZI
+#include <pcl/point_types.h>
+
+struct PointType
 {
-  int isGround;
+  PCL_ADD_POINT4D;                   // X, Y, Z fields from pcl::PointXYZI
+  float intensity;                    // Intensity field
+  float Ground;                       // Additional "Ground" field
 
-  // Constructor
-  PointType()
-    : isGround(0)
-  {
-  }
+  // Optional additional fields can be added here
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW    // Ensure proper alignment for the struct
 };
-
 ////////////////////////////
 
 extern const string pointCloudTopic = "/velodyne_points";
