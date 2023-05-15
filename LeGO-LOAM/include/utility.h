@@ -48,20 +48,18 @@
 
 using namespace std;
 
-struct PointType
+struct PointXYZIGround
 {
-  PCL_ADD_POINT4D;
-  float intensity;
-  int isGround;
+  PCL_ADD_POINT4D;              // X, Y, Z, and intensity fields
+  int Ground;                   // Additional "Ground" field
 
-  // Constructor
-  PointType()
-    : intensity(0.0f), isGround(0)
-  {
-  }
+  // Optional additional fields can be added here
 
-  // Define additional constructors or member functions if needed
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW   // Ensure proper alignment for the struct
 };
+
+// Update the original PointType typedef to use the new structure
+typedef PointXYZIGround PointType;
 
 extern const string pointCloudTopic = "/velodyne_points";
 extern const string imuTopic = "/imu/data";
