@@ -302,8 +302,13 @@ public:
         if (pubGroundCloud.getNumSubscribers() != 0){
             for (size_t i = 0; i <= groundScanInd; ++i){
                 for (size_t j = 0; j < Horizon_SCAN; ++j){
-                    if (groundMat.at<int8_t>(i,j) == 1)
+                    if (groundMat.at<int8_t>(i,j) == 1){
+                        fullCloud->points[j + i*Horizon_SCAN].isGround = 1;
                         groundCloud->push_back(fullCloud->points[j + i*Horizon_SCAN]);
+                    }
+                    else{
+                        fullCloud->points[j + i*Horizon_SCAN].isGround = 0;
+                    }
                 }
             }
         }

@@ -734,34 +734,15 @@ public:
         //////////////////////////////////////////////////////
         pcl::PointCloud<PointType>::Ptr groundPointCloud(new pcl::PointCloud<PointType>());
 
-        // Set the parameters for RANSAC ground segmentation
-        pcl::SACSegmentation<PointType> seg;
-        seg.setOptimizeCoefficients(true);
-        seg.setModelType(pcl::SACMODEL_PLANE);
-        seg.setMethodType(pcl::SAC_RANSAC);
-        seg.setMaxIterations(100);
-        seg.setDistanceThreshold(0.2); // Adjust this threshold as needed
-
-        // Perform RANSAC ground segmentation
-        pcl::PointIndices::Ptr inlierIndices(new pcl::PointIndices());
-        pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
-        seg.setInputCloud(globalMapKeyFramesDS);
-        seg.segment(*inlierIndices, *coefficients);
-
-        // Extract ground points using inlier indices
-        pcl::ExtractIndices<PointType> extract;
-        extract.setInputCloud(globalMapKeyFramesDS);
-        extract.setIndices(inlierIndices);
-        extract.setNegative(false);
-        extract.filter(*groundPointCloud);
-
-        // Save ground point cloud
-        if (!groundPointCloud->empty()) {
-            pcl::io::savePCDFileASCII("/tmp/groundPointCloud.pcd", *groundPointCloud);
-        } else {
-            std::cout << "No ground points found!" << std::endl;
+        for (size_t i = 0; i <= groundScanInd; ++i){
+            for (size_t j = 0; j < Horizon_SCAN; ++j){
+                if (globalMapKeyFramesDS->points[j + i*Horizon_SCAN].isGround == 1){
+                    groundPointCloud->push_back(globalMapKeyFramesDS->points[j + i*Horizon_SCAN]);
+                }
+            }
         }
 
+        pcl::io::savePCDFileASCII("/temp/groundPointCloud.pcd", *groundPointCloud);
 
 
 
