@@ -22,7 +22,7 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/common/common.h>
 #include <pcl/registration/icp.h>
-
+#include <pcl/impl/point_types.hpp>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
  
@@ -47,19 +47,36 @@
 #define PI 3.14159265
 
 using namespace std;
-
+//////////////////////////////
 struct PointXYZIGround
 {
-  PCL_ADD_POINT4D;              // X, Y, Z, and intensity fields
-  int Ground;                   // Additional "Ground" field
+  PCL_ADD_POINT4D; // Add X, Y, Z fields
+  float intensity;
+  int isGround;
 
-  // Optional additional fields can be added here
+  // Constructor
+  PointXYZIGround()
+    : intensity(0.0f), isGround(0)
+  {
+  }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW   // Ensure proper alignment for the struct
+  // Define additional constructors or member functions if needed
 };
 
-// Update the original PointType typedef to use the new structure
+// Add the necessary traits for the custom point type
+namespace pcl
+{
+  template <>
+  struct traits<PointXYZIGround> : public traits<pcl::PointXYZI>
+  {
+    using fieldList = pcl::traits::concatenate<pcl::traits::fieldList<pcl::PointXYZI>, pcl::traits::fieldList<int, &PointXYZIGround::isGround>>;
+  };
+}
+
+// Define the typedef using the custom point type
 typedef PointXYZIGround PointType;
+
+//////////////////////////////
 
 extern const string pointCloudTopic = "/velodyne_points";
 extern const string imuTopic = "/imu/data";
