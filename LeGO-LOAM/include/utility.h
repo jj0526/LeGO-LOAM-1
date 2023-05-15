@@ -59,19 +59,19 @@ struct PointXYZIGround : public pcl::PointXYZI
 // Define the required specialization for pcl::traits::fieldList
 namespace pcl
 {
-    namespace traits
-    {
-    template <>
-    struct fieldList<PointXYZIGround>
-    {
-        typedef ::boost::mpl::list<
-        pcl::fields::X,
-        pcl::fields::Y,
-        pcl::fields::Z,
-        pcl::fields::Intensity,
-        pcl::fields::Custom
-        > type;
-    };
+namespace traits
+{
+  template <>
+  struct fieldList<PointType>
+  {
+    typedef ::boost::mpl::list<
+      pcl::fields::X,
+      pcl::fields::Y,
+      pcl::fields::Z,
+      pcl::fields::Intensity,
+      pcl::fields::Custom
+    > type;
+  };
 }
 }
 //////////////////////////////
