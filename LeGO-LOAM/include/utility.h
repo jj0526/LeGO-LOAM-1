@@ -22,10 +22,9 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/common/common.h>
 #include <pcl/registration/icp.h>
-#include <pcl/impl/point_types.hpp>
+
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
-#include <pcl/point_traits.h>
  
 #include <vector>
 #include <cmath>
@@ -48,33 +47,21 @@
 #define PI 3.14159265
 
 using namespace std;
+/////////////////////////////////////
 
 
-//////////////////////////
-struct PointXYZIGround : public pcl::PointXYZI
+struct PointType : pcl::PointXYZI
 {
-  int Ground;  // Additional "Ground" field
+  int isGround;
+
+  // Constructor
+  PointType()
+    : isGround(0)
+  {
+  }
 };
 
-// Define the required specialization for pcl::traits::fieldList
-namespace pcl
-{
-namespace traits
-{
-  template <>
-  struct fieldList<PointType>
-  {
-    typedef ::boost::mpl::list<
-      pcl::fields::X,
-      pcl::fields::Y,
-      pcl::fields::Z,
-      pcl::fields::Intensity,
-      pcl::fields::Custom
-    > type;
-  };
-}
-}
-//////////////////////////////
+////////////////////////////
 
 extern const string pointCloudTopic = "/velodyne_points";
 extern const string imuTopic = "/imu/data";
