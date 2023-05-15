@@ -25,6 +25,7 @@
 #include <pcl/impl/point_types.hpp>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
+#include <pcl/point_traits.h>
  
 #include <vector>
 #include <cmath>
@@ -52,12 +53,27 @@ using namespace std;
 //////////////////////////
 struct PointXYZIGround : public pcl::PointXYZI
 {
-  int isGround;  // Additional "Ground" field
-
-  // Optional additional fields can be added here
+  int Ground;  // Additional "Ground" field
 };
 
-typedef PointXYZIGround PointType;
+// Define the required specialization for pcl::traits::fieldList
+namespace pcl
+{
+    namespace traits
+    {
+    template <>
+    struct fieldList<PointXYZIGround>
+    {
+        typedef ::boost::mpl::list<
+        pcl::fields::X,
+        pcl::fields::Y,
+        pcl::fields::Z,
+        pcl::fields::Intensity,
+        pcl::fields::Custom
+        > type;
+    };
+}
+}
 //////////////////////////////
 
 extern const string pointCloudTopic = "/velodyne_points";
