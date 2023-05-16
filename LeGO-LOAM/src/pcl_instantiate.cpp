@@ -1,5 +1,6 @@
 #include <pcl/point_types.h>
 #include <pcl/filters/filter.h>
+#include "utility.h"
 
 typedef pcl::PointCloud<PointXYZIGround> PointCloudXYZIGround;
 
