@@ -56,9 +56,6 @@ add_dependencies(imageProjection ${catkin_EXPORTED_TARGETS} cloud_msgs_gencpp)
 
 target_link_libraries(imageProjection
   ${catkin_LIBRARIES}
-  ${PCL_COMMON_LIBRARIES}
-  ${PCL_IO_LIBRARIES}
-  ${PCL_FILTERS_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${Boost_LIBRARIES}
   ${PCL_LIBRARIES}
