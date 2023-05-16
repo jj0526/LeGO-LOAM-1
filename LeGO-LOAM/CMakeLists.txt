@@ -26,6 +26,7 @@ find_package(GTSAM REQUIRED QUIET)
 find_package(PCL REQUIRED QUIET)
 find_package(OpenCV REQUIRED QUIET)
 find_package(Boost REQUIRED COMPONENTS system timer thread serialization chrono)
+find_package(PCL REQUIRED QUIET COMPONENTS common filters)
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS cloud_msgs
@@ -58,7 +59,7 @@ target_link_libraries(imageProjection
   ${PCL_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${Boost_LIBRARIES}
-  pcl_common
+  ${PCL_COMMON_LIBRARIES}
   ${PCL_FILTERS_LIBRARIES}
 )
 
