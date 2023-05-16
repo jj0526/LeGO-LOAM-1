@@ -11,8 +11,10 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   cv_bridge
   image_transport
+
   pcl_ros
   pcl_conversions
+
   std_msgs
   sensor_msgs
   geometry_msgs
@@ -21,10 +23,9 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(GTSAM REQUIRED QUIET)
-find_package(PCL REQUIRED QUIET COMPONENTS common filters)
+find_package(PCL REQUIRED QUIET)
 find_package(OpenCV REQUIRED QUIET)
 find_package(Boost REQUIRED COMPONENTS system timer thread serialization chrono)
-
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS cloud_msgs
@@ -32,54 +33,43 @@ catkin_package(
 )
 
 include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-  ${PCL_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
-  ${GTSAM_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIRS}
+	include
+	${catkin_INCLUDE_DIRS}
+	${PCL_INCLUDE_DIRS}
+	${OpenCV_INCLUDE_DIRS}
+	${GTSAM_INCLUDE_DIR}
+	${Boost_INCLUDE_DIRS}
 )
 
 link_directories(
-  ${OpenCV_LIBRARY_DIRS}
-  ${PCL_LIBRARY_DIRS}
-  ${GTSAM_LIBRARY_DIRS}
-  ${Boost_LIBRARY_DIRS}
+	include
+	${OpenCV_LIBRARY_DIRS}
+	${PCL_LIBRARY_DIRS}
+	${GTSAM_LIBRARY_DIRS}
+	${Boost_LIBRARY_DIRS}
 )
 
 add_executable(imageProjection src/imageProjection.cpp)
 add_dependencies(imageProjection ${catkin_EXPORTED_TARGETS} cloud_msgs_gencpp)
+
+
 target_link_libraries(imageProjection
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${Boost_LIBRARIES}
   pcl_common
-  pcl_filters
+  ${PCL_FILTERS_LIBRARIES}
 )
+
+
 
 add_executable(featureAssociation src/featureAssociation.cpp)
 add_dependencies(featureAssociation ${catkin_EXPORTED_TARGETS} cloud_msgs_gencpp)
-target_link_libraries(featureAssociation
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-  ${OpenCV_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
+target_link_libraries(featureAssociation ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(mapOptmization src/mapOptmization.cpp)
-target_link_libraries(mapOptmization
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-  ${OpenCV_LIBRARIES}
-  ${Boost_LIBRARIES}
-  gtsam
-)
+target_link_libraries(mapOptmization ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} ${Boost_LIBRARIES} gtsam)
 
 add_executable(transformFusion src/transformFusion.cpp)
-target_link_libraries(transformFusion
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-  ${OpenCV_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
+target_link_libraries(transformFusion ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} ${Boost_LIBRARIES})
