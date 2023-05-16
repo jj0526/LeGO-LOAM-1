@@ -510,7 +510,10 @@ public:
         if (pubGroundCloud.getNumSubscribers() != 0) {
             pcl::PointCloud<PointType>::Ptr modifiedGroundCloud(new pcl::PointCloud<PointType>);
             pcl::copyPointCloud(*groundCloud, *modifiedGroundCloud);
+            sensor_msgs::PointCloud2 laserCloudTempGround;
             pcl::toROSMsg(*modifiedGroundCloud, laserCloudTempGround);
+
+
             laserCloudTempGround.header.stamp = cloudHeader.stamp;
             laserCloudTempGround.header.frame_id = "base_link";
             pubGroundCloud.publish(laserCloudTempGround);
@@ -519,9 +522,7 @@ public:
         // segmented cloud without ground
         if (pubSegmentedCloudPure.getNumSubscribers() != 0) {
             pcl::PointCloud<PointType>::Ptr modifiedCloud5(new pcl::PointCloud<PointType>);
-            // Convert segmentedCloudPure to the modified point type
             pcl::copyPointCloud(*segmentedCloudPure, *modifiedCloud5);
-            // Convert the modified point cloud to a ROS message
             sensor_msgs::PointCloud2 laserCloudTemp5;
             pcl::toROSMsg(*modifiedCloud5, laserCloudTemp5);
             laserCloudTemp5.header.stamp = cloudHeader.stamp;
