@@ -2,8 +2,8 @@
 #include <pcl/filters/filter.h>
 #include "utility.h"
 
-typedef pcl::PointCloud<PointXYZIGround> PointCloudXYZIGround;
+using PointCloudXYZIGround = pcl::PointCloud<PointXYZIGround>;
 
-template void pcl::removeNaNFromPointCloud<PointType>(const PointCloudXYZIGround&, PointCloudXYZIGround&, std::vector<int>&);
+template void pcl::removeNaNFromPointCloud<PointXYZIGround>(const PointCloudXYZIGround&, PointCloudXYZIGround&, std::vector<int>&);
 
 template class PointCloudXYZIGround;
