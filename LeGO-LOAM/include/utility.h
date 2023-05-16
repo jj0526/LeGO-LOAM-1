@@ -22,7 +22,7 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/common/common.h>
 #include <pcl/registration/icp.h>
-#include "imageProjection.h"
+
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
  
@@ -43,6 +43,25 @@
 #include <array>
 #include <thread>
 #include <mutex>
+
+
+
+
+
+#include <ros/ros.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_types.h>
+#include <pcl/filters/filter.h>
+#include <opencv2/opencv.hpp>
+#include <limits>
+#include <std_msgs/Header.h>
+#include <vector>
+#include <utility>
+#include <cloud_msgs/cloud_info.h>
+
+
+
 
 #define PI 3.14159265
 
