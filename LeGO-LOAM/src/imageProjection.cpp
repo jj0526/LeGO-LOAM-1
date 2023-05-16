@@ -164,13 +164,13 @@ public:
 
         cloudHeader = laserCloudMsg->header;
         // cloudHeader.stamp = ros::Time::now(); // Ouster lidar users may need to uncomment this line
-        pcl::fromROSMsg<pointType>(*laserCloudMsg, *laserCloudIn);
+        pcl::fromROSMsg<PointType>(*laserCloudMsg, *laserCloudIn);
         // Remove Nan points
         std::vector<int> indices;
         pcl::removeNaNFromPointCloud(*laserCloudIn, *laserCloudIn, indices);
         // have "ring" channel in the cloud
         if (useCloudRing == true){
-            pcl::fromROSMsg<pointType>(*laserCloudMsg, *laserCloudInRing);
+            pcl::fromROSMsg<PointType>(*laserCloudMsg, *laserCloudInRing);
             if (laserCloudInRing->is_dense == false) {
                 ROS_ERROR("Point cloud is not in dense format, please remove NaN points first!");
                 ros::shutdown();
@@ -472,7 +472,7 @@ public:
 
         // 2. Publish clouds
 
-        pcl::PointCloud<pointType>::Ptr modifiedCloud1(new pcl::PointCloud<pointType>);
+        pcl::PointCloud<PointType>::Ptr modifiedCloud1(new pcl::PointCloud<PointType>);
         // Convert outlierCloud to the modified point type
         pcl::copyPointCloud(*outlierCloud, *modifiedCloud1);
         // Convert the modified point cloud to ROS message
@@ -483,7 +483,7 @@ public:
         pubOutlierCloud.publish(laserCloudTemp1);
 
         // segmented cloud with ground
-        pcl::PointCloud<pointType>::Ptr modifiedCloud2(new pcl::PointCloud<pointType>);
+        pcl::PointCloud<PointType>::Ptr modifiedCloud2(new pcl::PointCloud<PointType>);
         // Convert segmentedCloud to the modified point type
         pcl::copyPointCloud(*segmentedCloud, *modifiedCloud2);
         // Convert the modified point cloud to ROS message
@@ -495,7 +495,7 @@ public:
 
         // projected full cloud
         if (pubFullCloud.getNumSubscribers() != 0) {
-            pcl::PointCloud<pointType>::Ptr modifiedCloud3(new pcl::PointCloud<pointType>);
+            pcl::PointCloud<PointType>::Ptr modifiedCloud3(new pcl::PointCloud<PointType>);
             // Convert fullCloud to the modified point type
             pcl::copyPointCloud(*fullCloud, *modifiedCloud3);
             // Convert the modified point cloud to ROS message
@@ -508,7 +508,7 @@ public:
 
         // original dense ground cloud
         if (pubGroundCloud.getNumSubscribers() != 0) {
-            pcl::PointCloud<pointType>::Ptr modifiedGroundCloud(new pcl::PointCloud<pointType>);
+            pcl::PointCloud<PointType>::Ptr modifiedGroundCloud(new pcl::PointCloud<PointType>);
             pcl::copyPointCloud(*groundCloud, *modifiedGroundCloud);
             pcl::toROSMsg(*modifiedGroundCloud, laserCloudTempGround);
             laserCloudTempGround.header.stamp = cloudHeader.stamp;
@@ -518,7 +518,7 @@ public:
 
         // segmented cloud without ground
         if (pubSegmentedCloudPure.getNumSubscribers() != 0) {
-            pcl::PointCloud<pointType>::Ptr modifiedCloud5(new pcl::PointCloud<pointType>);
+            pcl::PointCloud<PointType>::Ptr modifiedCloud5(new pcl::PointCloud<PointType>);
             // Convert segmentedCloudPure to the modified point type
             pcl::copyPointCloud(*segmentedCloudPure, *modifiedCloud5);
             // Convert the modified point cloud to a ROS message
@@ -531,7 +531,7 @@ public:
 
         // projected full cloud info
         if (pubFullInfoCloud.getNumSubscribers() != 0) {
-            pcl::PointCloud<pointType>::Ptr modifiedFullInfoCloud(new pcl::PointCloud<pointTypeZ>);
+            pcl::PointCloud<PointType>::Ptr modifiedFullInfoCloud(new pcl::PointCloud<PointType>);
             pcl::copyPointCloud(*fullInfoCloud, *modifiedFullInfoCloud);
             sensor_msgs::PointCloud2 laserCloudTempFullInfo;
             pcl::toROSMsg(*modifiedFullInfoCloud, laserCloudTempFullInfo);
