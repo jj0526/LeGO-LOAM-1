@@ -4,6 +4,6 @@
 
 typedef pcl::PointCloud<PointXYZIGround> PointCloudXYZIGround;
 
-template class PointCloudXYZIGround;
-
 template void pcl::removeNaNFromPointCloud<PointType>(const PointCloudXYZIGround&, PointCloudXYZIGround&, std::vector<int>&);
+
+template class PointCloudXYZIGround;
