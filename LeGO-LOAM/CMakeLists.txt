@@ -54,6 +54,8 @@ target_link_libraries(imageProjection
   ${PCL_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${Boost_LIBRARIES}
+  pcl_common
+  pcl_filters
 )
 
 add_executable(featureAssociation src/featureAssociation.cpp)
