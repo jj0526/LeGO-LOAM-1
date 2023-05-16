@@ -50,16 +50,16 @@ private:
     ros::Publisher pubSegmentedCloudInfo;
     ros::Publisher pubOutlierCloud;
 
-    pcl::PointCloud<PointType>::Ptr laserCloudIn;
-    pcl::PointCloud<PointXYZIR>::Ptr laserCloudInRing;
+    PointCloud<PointType>::Ptr laserCloudIn;
+    PointCloud<PointXYZIR>::Ptr laserCloudInRing;
 
-    pcl::PointCloud<PointType>::Ptr fullCloud; // projected velodyne raw cloud, but saved in the form of 1-D matrix
-    pcl::PointCloud<PointType>::Ptr fullInfoCloud; // same as fullCloud, but with intensity - range
+    PointCloud<PointType>::Ptr fullCloud; // projected velodyne raw cloud, but saved in the form of 1-D matrix
+    PointCloud<PointType>::Ptr fullInfoCloud; // same as fullCloud, but with intensity - range
 
-    pcl::PointCloud<PointType>::Ptr groundCloud;
-    pcl::PointCloud<PointType>::Ptr segmentedCloud;
-    pcl::PointCloud<PointType>::Ptr segmentedCloudPure;
-    pcl::PointCloud<PointType>::Ptr outlierCloud;
+    PointCloud<PointType>::Ptr groundCloud;
+    PointCloud<PointType>::Ptr segmentedCloud;
+    PointCloud<PointType>::Ptr segmentedCloudPure;
+    PointCloud<PointType>::Ptr outlierCloud;
 
     PointType nanPoint; // fill in fullCloud at each iteration
 
@@ -108,16 +108,16 @@ public:
 
     void allocateMemory(){
 
-        laserCloudIn.reset(new pcl::PointCloud<PointType>());
-        laserCloudInRing.reset(new pcl::PointCloud<PointXYZIR>());
+        laserCloudIn.reset(new PointCloud<PointType>());
+        laserCloudInRing.reset(new PointCloud<PointXYZIR>());
 
-        fullCloud.reset(new pcl::PointCloud<PointType>());
-        fullInfoCloud.reset(new pcl::PointCloud<PointType>());
+        fullCloud.reset(new PointCloud<PointType>());
+        fullInfoCloud.reset(new PointCloud<PointType>());
 
-        groundCloud.reset(new pcl::PointCloud<PointType>());
-        segmentedCloud.reset(new pcl::PointCloud<PointType>());
-        segmentedCloudPure.reset(new pcl::PointCloud<PointType>());
-        outlierCloud.reset(new pcl::PointCloud<PointType>());
+        groundCloud.reset(new PointCloud<PointType>());
+        segmentedCloud.reset(new PointCloud<PointType>());
+        segmentedCloudPure.reset(new PointCloud<PointType>());
+        outlierCloud.reset(new PointCloud<PointType>());
 
         fullCloud->points.resize(N_SCAN*Horizon_SCAN);
         fullInfoCloud->points.resize(N_SCAN*Horizon_SCAN);

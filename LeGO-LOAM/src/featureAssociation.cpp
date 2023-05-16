@@ -50,18 +50,18 @@ private:
     ros::Publisher pubSurfPointsFlat;
     ros::Publisher pubSurfPointsLessFlat;
 
-    pcl::PointCloud<PointType>::Ptr segmentedCloud;
-    pcl::PointCloud<PointType>::Ptr outlierCloud;
+    PointCloud<PointType>::Ptr segmentedCloud;
+    PointCloud<PointType>::Ptr outlierCloud;
 
-    pcl::PointCloud<PointType>::Ptr cornerPointsSharp;
-    pcl::PointCloud<PointType>::Ptr cornerPointsLessSharp;
-    pcl::PointCloud<PointType>::Ptr surfPointsFlat;
-    pcl::PointCloud<PointType>::Ptr surfPointsLessFlat;
+    PointCloud<PointType>::Ptr cornerPointsSharp;
+    PointCloud<PointType>::Ptr cornerPointsLessSharp;
+    PointCloud<PointType>::Ptr surfPointsFlat;
+    PointCloud<PointType>::Ptr surfPointsLessFlat;
 
-    pcl::PointCloud<PointType>::Ptr surfPointsLessFlatScan;
-    pcl::PointCloud<PointType>::Ptr surfPointsLessFlatScanDS;
+    PointCloud<PointType>::Ptr surfPointsLessFlatScan;
+    PointCloud<PointType>::Ptr surfPointsLessFlatScanDS;
 
-    pcl::VoxelGrid<PointType> downSizeFilter;
+    VoxelGrid<PointType> downSizeFilter;
 
     double timeScanCur;
     double timeNewSegmentedCloud;
@@ -158,13 +158,13 @@ private:
     float imuShiftFromStartX, imuShiftFromStartY, imuShiftFromStartZ;
     float imuVeloFromStartX, imuVeloFromStartY, imuVeloFromStartZ;
 
-    pcl::PointCloud<PointType>::Ptr laserCloudCornerLast;
-    pcl::PointCloud<PointType>::Ptr laserCloudSurfLast;
-    pcl::PointCloud<PointType>::Ptr laserCloudOri;
-    pcl::PointCloud<PointType>::Ptr coeffSel;
+    PointCloud<PointType>::Ptr laserCloudCornerLast;
+    PointCloud<PointType>::Ptr laserCloudSurfLast;
+    PointCloud<PointType>::Ptr laserCloudOri;
+    PointCloud<PointType>::Ptr coeffSel;
 
-    pcl::KdTreeFLANN<PointType>::Ptr kdtreeCornerLast;
-    pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurfLast;
+    KdTreeFLANN<PointType>::Ptr kdtreeCornerLast;
+    KdTreeFLANN<PointType>::Ptr kdtreeSurfLast;
 
     std::vector<int> pointSearchInd;
     std::vector<float> pointSearchSqDis;
@@ -224,16 +224,16 @@ public:
 
         downSizeFilter.setLeafSize(0.2, 0.2, 0.2);
 
-        segmentedCloud.reset(new pcl::PointCloud<PointType>());
-        outlierCloud.reset(new pcl::PointCloud<PointType>());
+        segmentedCloud.reset(new PointCloud<PointType>());
+        outlierCloud.reset(new PointCloud<PointType>());
 
-        cornerPointsSharp.reset(new pcl::PointCloud<PointType>());
-        cornerPointsLessSharp.reset(new pcl::PointCloud<PointType>());
-        surfPointsFlat.reset(new pcl::PointCloud<PointType>());
-        surfPointsLessFlat.reset(new pcl::PointCloud<PointType>());
+        cornerPointsSharp.reset(new PointCloud<PointType>());
+        cornerPointsLessSharp.reset(new PointCloud<PointType>());
+        surfPointsFlat.reset(new PointCloud<PointType>());
+        surfPointsLessFlat.reset(new PointCloud<PointType>());
 
-        surfPointsLessFlatScan.reset(new pcl::PointCloud<PointType>());
-        surfPointsLessFlatScanDS.reset(new pcl::PointCloud<PointType>());
+        surfPointsLessFlatScan.reset(new PointCloud<PointType>());
+        surfPointsLessFlatScanDS.reset(new PointCloud<PointType>());
 
         timeScanCur = 0;
         timeNewSegmentedCloud = 0;
@@ -294,13 +294,13 @@ public:
         imuShiftFromStartX = 0; imuShiftFromStartY = 0; imuShiftFromStartZ = 0;
         imuVeloFromStartX = 0; imuVeloFromStartY = 0; imuVeloFromStartZ = 0;
 
-        laserCloudCornerLast.reset(new pcl::PointCloud<PointType>());
-        laserCloudSurfLast.reset(new pcl::PointCloud<PointType>());
-        laserCloudOri.reset(new pcl::PointCloud<PointType>());
-        coeffSel.reset(new pcl::PointCloud<PointType>());
+        laserCloudCornerLast.reset(new PointCloud<PointType>());
+        laserCloudSurfLast.reset(new PointCloud<PointType>());
+        laserCloudOri.reset(new PointCloud<PointType>());
+        coeffSel.reset(new PointCloud<PointType>());
 
-        kdtreeCornerLast.reset(new pcl::KdTreeFLANN<PointType>());
-        kdtreeSurfLast.reset(new pcl::KdTreeFLANN<PointType>());
+        kdtreeCornerLast.reset(new KdTreeFLANN<PointType>());
+        kdtreeSurfLast.reset(new KdTreeFLANN<PointType>());
 
         laserOdometry.header.frame_id = "camera_init";
         laserOdometry.child_frame_id = "/laser_odom";
@@ -1604,7 +1604,7 @@ public:
 
     void checkSystemInitialization(){
 
-        pcl::PointCloud<PointType>::Ptr laserCloudTemp = cornerPointsLessSharp;
+        PointCloud<PointType>::Ptr laserCloudTemp = cornerPointsLessSharp;
         cornerPointsLessSharp = laserCloudCornerLast;
         laserCloudCornerLast = laserCloudTemp;
 
@@ -1771,7 +1771,7 @@ public:
             TransformToEnd(&surfPointsLessFlat->points[i], &surfPointsLessFlat->points[i]);
         }
 
-        pcl::PointCloud<PointType>::Ptr laserCloudTemp = cornerPointsLessSharp;
+        PointCloud<PointType>::Ptr laserCloudTemp = cornerPointsLessSharp;
         cornerPointsLessSharp = laserCloudCornerLast;
         laserCloudCornerLast = laserCloudTemp;
 

@@ -83,49 +83,49 @@ private:
     tf::StampedTransform aftMappedTrans;
     tf::TransformBroadcaster tfBroadcaster;
 
-    vector<pcl::PointCloud<PointType>::Ptr> cornerCloudKeyFrames;
-    vector<pcl::PointCloud<PointType>::Ptr> surfCloudKeyFrames;
-    vector<pcl::PointCloud<PointType>::Ptr> outlierCloudKeyFrames;
+    vector<PointCloud<PointType>::Ptr> cornerCloudKeyFrames;
+    vector<PointCloud<PointType>::Ptr> surfCloudKeyFrames;
+    vector<PointCloud<PointType>::Ptr> outlierCloudKeyFrames;
 
-    deque<pcl::PointCloud<PointType>::Ptr> recentCornerCloudKeyFrames;
-    deque<pcl::PointCloud<PointType>::Ptr> recentSurfCloudKeyFrames;
-    deque<pcl::PointCloud<PointType>::Ptr> recentOutlierCloudKeyFrames;
+    deque<PointCloud<PointType>::Ptr> recentCornerCloudKeyFrames;
+    deque<PointCloud<PointType>::Ptr> recentSurfCloudKeyFrames;
+    deque<PointCloud<PointType>::Ptr> recentOutlierCloudKeyFrames;
     int latestFrameID;
 
     vector<int> surroundingExistingKeyPosesID;
-    deque<pcl::PointCloud<PointType>::Ptr> surroundingCornerCloudKeyFrames;
-    deque<pcl::PointCloud<PointType>::Ptr> surroundingSurfCloudKeyFrames;
-    deque<pcl::PointCloud<PointType>::Ptr> surroundingOutlierCloudKeyFrames;
+    deque<PointCloud<PointType>::Ptr> surroundingCornerCloudKeyFrames;
+    deque<PointCloud<PointType>::Ptr> surroundingSurfCloudKeyFrames;
+    deque<PointCloud<PointType>::Ptr> surroundingOutlierCloudKeyFrames;
     
     PointType previousRobotPosPoint;
     PointType currentRobotPosPoint;
 
-    pcl::PointCloud<PointType>::Ptr cloudKeyPoses3D;
-    pcl::PointCloud<PointTypePose>::Ptr cloudKeyPoses6D;
+    PointCloud<PointType>::Ptr cloudKeyPoses3D;
+    PointCloud<PointTypePose>::Ptr cloudKeyPoses6D;
 
     
 
-    pcl::PointCloud<PointType>::Ptr surroundingKeyPoses;
-    pcl::PointCloud<PointType>::Ptr surroundingKeyPosesDS;
+    PointCloud<PointType>::Ptr surroundingKeyPoses;
+    PointCloud<PointType>::Ptr surroundingKeyPosesDS;
 
-    pcl::PointCloud<PointType>::Ptr laserCloudCornerLast; // corner feature set from odoOptimization
-    pcl::PointCloud<PointType>::Ptr laserCloudSurfLast; // surf feature set from odoOptimization
-    pcl::PointCloud<PointType>::Ptr laserCloudCornerLastDS; // downsampled corner featuer set from odoOptimization
-    pcl::PointCloud<PointType>::Ptr laserCloudSurfLastDS; // downsampled surf featuer set from odoOptimization
+    PointCloud<PointType>::Ptr laserCloudCornerLast; // corner feature set from odoOptimization
+    PointCloud<PointType>::Ptr laserCloudSurfLast; // surf feature set from odoOptimization
+    PointCloud<PointType>::Ptr laserCloudCornerLastDS; // downsampled corner featuer set from odoOptimization
+    PointCloud<PointType>::Ptr laserCloudSurfLastDS; // downsampled surf featuer set from odoOptimization
 
-    pcl::PointCloud<PointType>::Ptr laserCloudOutlierLast; // corner feature set from odoOptimization
-    pcl::PointCloud<PointType>::Ptr laserCloudOutlierLastDS; // corner feature set from odoOptimization
+    PointCloud<PointType>::Ptr laserCloudOutlierLast; // corner feature set from odoOptimization
+    PointCloud<PointType>::Ptr laserCloudOutlierLastDS; // corner feature set from odoOptimization
 
-    pcl::PointCloud<PointType>::Ptr laserCloudSurfTotalLast; // surf feature set from odoOptimization
-    pcl::PointCloud<PointType>::Ptr laserCloudSurfTotalLastDS; // downsampled corner featuer set from odoOptimization
+    PointCloud<PointType>::Ptr laserCloudSurfTotalLast; // surf feature set from odoOptimization
+    PointCloud<PointType>::Ptr laserCloudSurfTotalLastDS; // downsampled corner featuer set from odoOptimization
 
-    pcl::PointCloud<PointType>::Ptr laserCloudOri;
-    pcl::PointCloud<PointType>::Ptr coeffSel;
+    PointCloud<PointType>::Ptr laserCloudOri;
+    PointCloud<PointType>::Ptr coeffSel;
 
-    pcl::PointCloud<PointType>::Ptr laserCloudCornerFromMap;
-    pcl::PointCloud<PointType>::Ptr laserCloudSurfFromMap;
-    pcl::PointCloud<PointType>::Ptr laserCloudCornerFromMapDS;
-    pcl::PointCloud<PointType>::Ptr laserCloudSurfFromMapDS;
+    PointCloud<PointType>::Ptr laserCloudCornerFromMap;
+    PointCloud<PointType>::Ptr laserCloudSurfFromMap;
+    PointCloud<PointType>::Ptr laserCloudCornerFromMapDS;
+    PointCloud<PointType>::Ptr laserCloudSurfFromMapDS;
 
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeCornerFromMap;
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeSurfFromMap;
@@ -134,20 +134,20 @@ private:
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeHistoryKeyPoses;
 
     
-    pcl::PointCloud<PointType>::Ptr nearHistoryCornerKeyFrameCloud;
-    pcl::PointCloud<PointType>::Ptr nearHistoryCornerKeyFrameCloudDS;
-    pcl::PointCloud<PointType>::Ptr nearHistorySurfKeyFrameCloud;
-    pcl::PointCloud<PointType>::Ptr nearHistorySurfKeyFrameCloudDS;
+    PointCloud<PointType>::Ptr nearHistoryCornerKeyFrameCloud;
+    PointCloud<PointType>::Ptr nearHistoryCornerKeyFrameCloudDS;
+    PointCloud<PointType>::Ptr nearHistorySurfKeyFrameCloud;
+    PointCloud<PointType>::Ptr nearHistorySurfKeyFrameCloudDS;
 
-    pcl::PointCloud<PointType>::Ptr latestCornerKeyFrameCloud;
-    pcl::PointCloud<PointType>::Ptr latestSurfKeyFrameCloud;
-    pcl::PointCloud<PointType>::Ptr latestSurfKeyFrameCloudDS;
+    PointCloud<PointType>::Ptr latestCornerKeyFrameCloud;
+    PointCloud<PointType>::Ptr latestSurfKeyFrameCloud;
+    PointCloud<PointType>::Ptr latestSurfKeyFrameCloudDS;
 
     pcl::KdTreeFLANN<PointType>::Ptr kdtreeGlobalMap;
-    pcl::PointCloud<PointType>::Ptr globalMapKeyPoses;
-    pcl::PointCloud<PointType>::Ptr globalMapKeyPosesDS;
-    pcl::PointCloud<PointType>::Ptr globalMapKeyFrames;
-    pcl::PointCloud<PointType>::Ptr globalMapKeyFramesDS;
+    PointCloud<PointType>::Ptr globalMapKeyPoses;
+    PointCloud<PointType>::Ptr globalMapKeyPosesDS;
+    PointCloud<PointType>::Ptr globalMapKeyFrames;
+    PointCloud<PointType>::Ptr globalMapKeyFramesDS;
 
     std::vector<int> pointSearchInd;
     std::vector<float> pointSearchSqDis;
@@ -269,50 +269,50 @@ public:
 
     void allocateMemory(){
 
-        cloudKeyPoses3D.reset(new pcl::PointCloud<PointType>());
-        cloudKeyPoses6D.reset(new pcl::PointCloud<PointTypePose>());
+        cloudKeyPoses3D.reset(new PointCloud<PointType>());
+        cloudKeyPoses6D.reset(new PointCloud<PointTypePose>());
 
         kdtreeSurroundingKeyPoses.reset(new pcl::KdTreeFLANN<PointType>());
         kdtreeHistoryKeyPoses.reset(new pcl::KdTreeFLANN<PointType>());
 
-        surroundingKeyPoses.reset(new pcl::PointCloud<PointType>());
-        surroundingKeyPosesDS.reset(new pcl::PointCloud<PointType>());        
+        surroundingKeyPoses.reset(new PointCloud<PointType>());
+        surroundingKeyPosesDS.reset(new PointCloud<PointType>());        
 
-        laserCloudCornerLast.reset(new pcl::PointCloud<PointType>()); // corner feature set from odoOptimization
-        laserCloudSurfLast.reset(new pcl::PointCloud<PointType>()); // surf feature set from odoOptimization
-        laserCloudCornerLastDS.reset(new pcl::PointCloud<PointType>()); // downsampled corner featuer set from odoOptimization
-        laserCloudSurfLastDS.reset(new pcl::PointCloud<PointType>()); // downsampled surf featuer set from odoOptimization
-        laserCloudOutlierLast.reset(new pcl::PointCloud<PointType>()); // corner feature set from odoOptimization
-        laserCloudOutlierLastDS.reset(new pcl::PointCloud<PointType>()); // downsampled corner feature set from odoOptimization
-        laserCloudSurfTotalLast.reset(new pcl::PointCloud<PointType>()); // surf feature set from odoOptimization
-        laserCloudSurfTotalLastDS.reset(new pcl::PointCloud<PointType>()); // downsampled surf featuer set from odoOptimization
+        laserCloudCornerLast.reset(new PointCloud<PointType>()); // corner feature set from odoOptimization
+        laserCloudSurfLast.reset(new PointCloud<PointType>()); // surf feature set from odoOptimization
+        laserCloudCornerLastDS.reset(new PointCloud<PointType>()); // downsampled corner featuer set from odoOptimization
+        laserCloudSurfLastDS.reset(new PointCloud<PointType>()); // downsampled surf featuer set from odoOptimization
+        laserCloudOutlierLast.reset(new PointCloud<PointType>()); // corner feature set from odoOptimization
+        laserCloudOutlierLastDS.reset(new PointCloud<PointType>()); // downsampled corner feature set from odoOptimization
+        laserCloudSurfTotalLast.reset(new PointCloud<PointType>()); // surf feature set from odoOptimization
+        laserCloudSurfTotalLastDS.reset(new PointCloud<PointType>()); // downsampled surf featuer set from odoOptimization
 
-        laserCloudOri.reset(new pcl::PointCloud<PointType>());
-        coeffSel.reset(new pcl::PointCloud<PointType>());
+        laserCloudOri.reset(new PointCloud<PointType>());
+        coeffSel.reset(new PointCloud<PointType>());
 
-        laserCloudCornerFromMap.reset(new pcl::PointCloud<PointType>());
-        laserCloudSurfFromMap.reset(new pcl::PointCloud<PointType>());
-        laserCloudCornerFromMapDS.reset(new pcl::PointCloud<PointType>());
-        laserCloudSurfFromMapDS.reset(new pcl::PointCloud<PointType>());
+        laserCloudCornerFromMap.reset(new PointCloud<PointType>());
+        laserCloudSurfFromMap.reset(new PointCloud<PointType>());
+        laserCloudCornerFromMapDS.reset(new PointCloud<PointType>());
+        laserCloudSurfFromMapDS.reset(new PointCloud<PointType>());
 
         kdtreeCornerFromMap.reset(new pcl::KdTreeFLANN<PointType>());
         kdtreeSurfFromMap.reset(new pcl::KdTreeFLANN<PointType>());
 
         
-        nearHistoryCornerKeyFrameCloud.reset(new pcl::PointCloud<PointType>());
-        nearHistoryCornerKeyFrameCloudDS.reset(new pcl::PointCloud<PointType>());
-        nearHistorySurfKeyFrameCloud.reset(new pcl::PointCloud<PointType>());
-        nearHistorySurfKeyFrameCloudDS.reset(new pcl::PointCloud<PointType>());
+        nearHistoryCornerKeyFrameCloud.reset(new PointCloud<PointType>());
+        nearHistoryCornerKeyFrameCloudDS.reset(new PointCloud<PointType>());
+        nearHistorySurfKeyFrameCloud.reset(new PointCloud<PointType>());
+        nearHistorySurfKeyFrameCloudDS.reset(new PointCloud<PointType>());
 
-        latestCornerKeyFrameCloud.reset(new pcl::PointCloud<PointType>());
-        latestSurfKeyFrameCloud.reset(new pcl::PointCloud<PointType>());
-        latestSurfKeyFrameCloudDS.reset(new pcl::PointCloud<PointType>());
+        latestCornerKeyFrameCloud.reset(new PointCloud<PointType>());
+        latestSurfKeyFrameCloud.reset(new PointCloud<PointType>());
+        latestSurfKeyFrameCloudDS.reset(new PointCloud<PointType>());
 
         kdtreeGlobalMap.reset(new pcl::KdTreeFLANN<PointType>());
-        globalMapKeyPoses.reset(new pcl::PointCloud<PointType>());
-        globalMapKeyPosesDS.reset(new pcl::PointCloud<PointType>());
-        globalMapKeyFrames.reset(new pcl::PointCloud<PointType>());
-        globalMapKeyFramesDS.reset(new pcl::PointCloud<PointType>());
+        globalMapKeyPoses.reset(new PointCloud<PointType>());
+        globalMapKeyPosesDS.reset(new PointCloud<PointType>());
+        globalMapKeyFrames.reset(new PointCloud<PointType>());
+        globalMapKeyFramesDS.reset(new PointCloud<PointType>());
 
         timeLaserCloudCornerLast = 0;
         timeLaserCloudSurfLast = 0;
@@ -544,10 +544,10 @@ public:
         tInZ = tIn->z;
     }
 
-    pcl::PointCloud<PointType>::Ptr transformPointCloud(pcl::PointCloud<PointType>::Ptr cloudIn){
+    PointCloud<PointType>::Ptr transformPointCloud(PointCloud<PointType>::Ptr cloudIn){
 	// !!! DO NOT use pcl for point cloud transformation, results are not accurate
         // Reason: unkown
-        pcl::PointCloud<PointType>::Ptr cloudOut(new pcl::PointCloud<PointType>());
+        PointCloud<PointType>::Ptr cloudOut(new PointCloud<PointType>());
 
         PointType *pointFrom;
         PointType pointTo;
@@ -576,9 +576,9 @@ public:
         return cloudOut;
     }
 
-    pcl::PointCloud<PointType>::Ptr transformPointCloud(pcl::PointCloud<PointType>::Ptr cloudIn, PointTypePose* transformIn){
+    PointCloud<PointType>::Ptr transformPointCloud(PointCloud<PointType>::Ptr cloudIn, PointTypePose* transformIn){
 
-        pcl::PointCloud<PointType>::Ptr cloudOut(new pcl::PointCloud<PointType>());
+        PointCloud<PointType>::Ptr cloudOut(new PointCloud<PointType>());
 
         PointType *pointFrom;
         PointType pointTo;
@@ -710,7 +710,7 @@ public:
         }
 
         if (pubRegisteredCloud.getNumSubscribers() != 0){
-            pcl::PointCloud<PointType>::Ptr cloudOut(new pcl::PointCloud<PointType>());
+            PointCloud<PointType>::Ptr cloudOut(new PointCloud<PointType>());
             PointTypePose thisPose6D = trans2PointTypePose(transformTobeMapped);
             *cloudOut += *transformPointCloud(laserCloudCornerLastDS,  &thisPose6D);
             *cloudOut += *transformPointCloud(laserCloudSurfTotalLast, &thisPose6D);
@@ -732,7 +732,7 @@ public:
         // save final point cloud
         pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
         //////////////////////////////////////////////////////
-        pcl::PointCloud<PointType>::Ptr groundPointCloud(new pcl::PointCloud<PointType>());
+        PointCloud<PointType>::Ptr groundPointCloud(new PointCloud<PointType>());
 
         for (size_t i = 0; i <= groundScanInd; ++i){
             for (size_t j = 0; j < Horizon_SCAN; ++j){
@@ -752,10 +752,10 @@ public:
         string surfaceMapString = "/tmp/surfaceMap.pcd";
         string trajectoryString = "/tmp/trajectory.pcd";
 
-        pcl::PointCloud<PointType>::Ptr cornerMapCloud(new pcl::PointCloud<PointType>());
-        pcl::PointCloud<PointType>::Ptr cornerMapCloudDS(new pcl::PointCloud<PointType>());
-        pcl::PointCloud<PointType>::Ptr surfaceMapCloud(new pcl::PointCloud<PointType>());
-        pcl::PointCloud<PointType>::Ptr surfaceMapCloudDS(new pcl::PointCloud<PointType>());
+        PointCloud<PointType>::Ptr cornerMapCloud(new PointCloud<PointType>());
+        PointCloud<PointType>::Ptr cornerMapCloudDS(new PointCloud<PointType>());
+        PointCloud<PointType>::Ptr surfaceMapCloud(new PointCloud<PointType>());
+        PointCloud<PointType>::Ptr surfaceMapCloudDS(new PointCloud<PointType>());
         
         for(int i = 0; i < cornerCloudKeyFrames.size(); i++) {
             *cornerMapCloud  += *transformPointCloud(cornerCloudKeyFrames[i],   &cloudKeyPoses6D->points[i]);
@@ -858,7 +858,7 @@ public:
         *latestSurfKeyFrameCloud += *transformPointCloud(cornerCloudKeyFrames[latestFrameIDLoopCloure], &cloudKeyPoses6D->points[latestFrameIDLoopCloure]);
         *latestSurfKeyFrameCloud += *transformPointCloud(surfCloudKeyFrames[latestFrameIDLoopCloure],   &cloudKeyPoses6D->points[latestFrameIDLoopCloure]);
 
-        pcl::PointCloud<PointType>::Ptr hahaCloud(new pcl::PointCloud<PointType>());
+        PointCloud<PointType>::Ptr hahaCloud(new PointCloud<PointType>());
         int cloudSize = latestSurfKeyFrameCloud->points.size();
         for (int i = 0; i < cloudSize; ++i){
             if ((int)latestSurfKeyFrameCloud->points[i].intensity >= 0){
@@ -916,14 +916,14 @@ public:
         // Align clouds
         icp.setInputSource(latestSurfKeyFrameCloud);
         icp.setInputTarget(nearHistorySurfKeyFrameCloudDS);
-        pcl::PointCloud<PointType>::Ptr unused_result(new pcl::PointCloud<PointType>());
+        PointCloud<PointType>::Ptr unused_result(new PointCloud<PointType>());
         icp.align(*unused_result);
 
         if (icp.hasConverged() == false || icp.getFitnessScore() > historyKeyframeFitnessScore)
             return;
         // publish corrected cloud
         if (pubIcpKeyFrames.getNumSubscribers() != 0){
-            pcl::PointCloud<PointType>::Ptr closed_cloud(new pcl::PointCloud<PointType>());
+            PointCloud<PointType>::Ptr closed_cloud(new PointCloud<PointType>());
             pcl::transformPointCloud (*latestSurfKeyFrameCloud, *closed_cloud, icp.getFinalTransformation());
             sensor_msgs::PointCloud2 cloudMsgTemp;
             pcl::toROSMsg(*closed_cloud, cloudMsgTemp);
@@ -1458,9 +1458,9 @@ public:
             }
         }
 
-        pcl::PointCloud<PointType>::Ptr thisCornerKeyFrame(new pcl::PointCloud<PointType>());
-        pcl::PointCloud<PointType>::Ptr thisSurfKeyFrame(new pcl::PointCloud<PointType>());
-        pcl::PointCloud<PointType>::Ptr thisOutlierKeyFrame(new pcl::PointCloud<PointType>());
+        PointCloud<PointType>::Ptr thisCornerKeyFrame(new PointCloud<PointType>());
+        PointCloud<PointType>::Ptr thisSurfKeyFrame(new PointCloud<PointType>());
+        PointCloud<PointType>::Ptr thisOutlierKeyFrame(new PointCloud<PointType>());
 
         pcl::copyPointCloud(*laserCloudCornerLastDS,  *thisCornerKeyFrame);
         pcl::copyPointCloud(*laserCloudSurfLastDS,    *thisSurfKeyFrame);
