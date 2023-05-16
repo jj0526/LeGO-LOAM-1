@@ -227,4 +227,25 @@ POINT_CLOUD_REGISTER_POINT_STRUCT (PointXYZIRPYT,
 
 typedef PointXYZIRPYT  PointTypePose;
 
+template<typename PointT>
+void removeNaNFromPointCloud(const pcl::PointCloud<PointT>& cloud_in,
+                             pcl::PointCloud<PointT>& cloud_out,
+                             std::vector<int>& indices)
+{
+  std::vector<int> finite_indices;
+  pcl::removeNaNFromPointCloud(cloud_in, finite_indices);
+
+  cloud_out.clear();
+  cloud_out.reserve(finite_indices.size());
+  indices.clear();
+  indices.reserve(finite_indices.size());
+
+  for (int i : finite_indices)
+  {
+    cloud_out.push_back(cloud_in[i]);
+    indices.push_back(i);
+  }
+}
+
+
 #endif
