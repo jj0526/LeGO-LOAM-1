@@ -610,21 +610,21 @@ public:
     void laserCloudOutlierLastHandler(const sensor_msgs::PointCloud2ConstPtr& msg){
         timeLaserCloudOutlierLast = msg->header.stamp.toSec();
         laserCloudOutlierLast->clear();
-        pcl::fromROSMsg<XYZIGround>(*msg, *laserCloudOutlierLast);
+        pcl::fromROSMsg<pointType>(*msg, *laserCloudOutlierLast);
         newLaserCloudOutlierLast = true;
     }
 
     void laserCloudCornerLastHandler(const sensor_msgs::PointCloud2ConstPtr& msg){
         timeLaserCloudCornerLast = msg->header.stamp.toSec();
         laserCloudCornerLast->clear();
-        pcl::fromROSMsg<XYZIGround>(*msg, *laserCloudCornerLast);
+        pcl::fromROSMsg<pointType>(*msg, *laserCloudCornerLast);
         newLaserCloudCornerLast = true;
     }
 
     void laserCloudSurfLastHandler(const sensor_msgs::PointCloud2ConstPtr& msg){
         timeLaserCloudSurfLast = msg->header.stamp.toSec();
         laserCloudSurfLast->clear();
-        pcl::fromROSMsg<XYZIGround>(*msg, *laserCloudSurfLast);
+        pcl::fromROSMsg<pointType>(*msg, *laserCloudSurfLast);
         newLaserCloudSurfLast = true;
     }
 
