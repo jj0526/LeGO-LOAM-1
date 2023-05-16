@@ -466,7 +466,7 @@ public:
         timeNewSegmentedCloud = timeScanCur;
 
         segmentedCloud->clear();
-        pcl::fromROSMsg<pointType>(*laserCloudMsg, *segmentedCloud);
+        pcl::fromROSMsg(*laserCloudMsg, *segmentedCloud);
 
         newSegmentedCloud = true;
     }
@@ -476,7 +476,7 @@ public:
         timeNewOutlierCloud = msgIn->header.stamp.toSec();
 
         outlierCloud->clear();
-        pcl::fromROSMsg<pointType>(*msgIn, *outlierCloud);
+        pcl::fromROSMsg(*msgIn, *outlierCloud);
 
         newOutlierCloud = true;
     }

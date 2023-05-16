@@ -26,7 +26,6 @@ find_package(GTSAM REQUIRED QUIET)
 find_package(PCL REQUIRED QUIET)
 find_package(OpenCV REQUIRED QUIET)
 find_package(Boost REQUIRED COMPONENTS system timer thread serialization chrono)
-find_package(PCL REQUIRED QUIET COMPONENTS common filters)
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS cloud_msgs
@@ -43,6 +42,7 @@ include_directories(
 )
 
 link_directories(
+	include
 	${OpenCV_LIBRARY_DIRS}
 	${PCL_LIBRARY_DIRS}
 	${GTSAM_LIBRARY_DIRS}
@@ -50,19 +50,8 @@ link_directories(
 )
 
 add_executable(imageProjection src/imageProjection.cpp)
-
 add_dependencies(imageProjection ${catkin_EXPORTED_TARGETS} cloud_msgs_gencpp)
-
-
-target_link_libraries(imageProjection
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-  ${OpenCV_LIBRARIES}
-  ${Boost_LIBRARIES}
-  ${PCL_COMMON_LIBRARIES}
-  ${PCL_FILTERS_LIBRARIES}
-)
-
+target_link_libraries(imageProjection ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(featureAssociation src/featureAssociation.cpp)
 add_dependencies(featureAssociation ${catkin_EXPORTED_TARGETS} cloud_msgs_gencpp)

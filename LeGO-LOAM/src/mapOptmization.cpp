@@ -43,8 +43,8 @@
 #include <gtsam/nonlinear/Values.h>
 
 #include <gtsam/nonlinear/ISAM2.h>
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/filters/extract_indices.h>
+
+#include "PointCloudUtils.h"
 
 using namespace gtsam;
 
@@ -610,21 +610,21 @@ public:
     void laserCloudOutlierLastHandler(const sensor_msgs::PointCloud2ConstPtr& msg){
         timeLaserCloudOutlierLast = msg->header.stamp.toSec();
         laserCloudOutlierLast->clear();
-        pcl::fromROSMsg<PointType>(*msg, *laserCloudOutlierLast);
+        pcl::fromROSMsg(*msg, *laserCloudOutlierLast);
         newLaserCloudOutlierLast = true;
     }
 
     void laserCloudCornerLastHandler(const sensor_msgs::PointCloud2ConstPtr& msg){
         timeLaserCloudCornerLast = msg->header.stamp.toSec();
         laserCloudCornerLast->clear();
-        pcl::fromROSMsg<PointType>(*msg, *laserCloudCornerLast);
+        pcl::fromROSMsg(*msg, *laserCloudCornerLast);
         newLaserCloudCornerLast = true;
     }
 
     void laserCloudSurfLastHandler(const sensor_msgs::PointCloud2ConstPtr& msg){
         timeLaserCloudSurfLast = msg->header.stamp.toSec();
         laserCloudSurfLast->clear();
-        pcl::fromROSMsg<PointType>(*msg, *laserCloudSurfLast);
+        pcl::fromROSMsg(*msg, *laserCloudSurfLast);
         newLaserCloudSurfLast = true;
     }
 
@@ -731,23 +731,27 @@ public:
         }
         // save final point cloud
         pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
-        //////////////////////////////////////////////////////
-        pcl::PointCloud<PointType>::Ptr groundPointCloud(new pcl::PointCloud<PointType>());
+
+        //////////////////////////////////////
+
 
         for (size_t i = 0; i <= groundScanInd; ++i){
             for (size_t j = 0; j < Horizon_SCAN; ++j){
-                if (globalMapKeyFramesDS->points[j + i*Horizon_SCAN].isGround == 1){
+                if (groundPointCloud->points[j + i*Horizon_SCAN].isGround == 1){
                     groundPointCloud->push_back(globalMapKeyFramesDS->points[j + i*Horizon_SCAN]);
                 }
             }
         }
+
 
         pcl::io::savePCDFileASCII("/temp/groundPointCloud.pcd", *groundPointCloud);
 
 
 
 
-        ///////////////////////////////////
+
+        //////////////////////////////////////
+
         string cornerMapString = "/tmp/cornerMap.pcd";
         string surfaceMapString = "/tmp/surfaceMap.pcd";
         string trajectoryString = "/tmp/trajectory.pcd";
