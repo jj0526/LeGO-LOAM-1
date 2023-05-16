@@ -43,7 +43,6 @@ include_directories(
 )
 
 link_directories(
-	include
 	${OpenCV_LIBRARY_DIRS}
 	${PCL_LIBRARY_DIRS}
 	${GTSAM_LIBRARY_DIRS}
