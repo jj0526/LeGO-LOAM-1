@@ -50,7 +50,7 @@ link_directories(
 	${Boost_LIBRARY_DIRS}
 )
 
-add_executable(imageProjection src/imageProjection.cpp)
+add_executable(imageProjection src/imageProjection.cpp src/pcl_instantiate.cpp)
 add_dependencies(imageProjection ${catkin_EXPORTED_TARGETS} cloud_msgs_gencpp)
 
 
@@ -62,7 +62,6 @@ target_link_libraries(imageProjection
   ${PCL_COMMON_LIBRARIES}
   ${PCL_FILTERS_LIBRARIES}
 )
-
 
 
 add_executable(featureAssociation src/featureAssociation.cpp)
