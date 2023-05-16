@@ -302,13 +302,8 @@ public:
         if (pubGroundCloud.getNumSubscribers() != 0){
             for (size_t i = 0; i <= groundScanInd; ++i){
                 for (size_t j = 0; j < Horizon_SCAN; ++j){
-                    if (groundMat.at<int8_t>(i,j) == 1){
-                        fullCloud->points[j + i*Horizon_SCAN].isGround = 1;
+                    if (groundMat.at<int8_t>(i,j) == 1)
                         groundCloud->push_back(fullCloud->points[j + i*Horizon_SCAN]);
-                    }
-                    else{
-                        fullCloud->points[j + i*Horizon_SCAN].isGround = 0;
-                    }
                 }
             }
         }
@@ -469,75 +464,45 @@ public:
         // 1. Publish Seg Cloud Info
         segMsg.header = cloudHeader;
         pubSegmentedCloudInfo.publish(segMsg);
-
         // 2. Publish clouds
+        sensor_msgs::PointCloud2 laserCloudTemp;
 
-        pcl::PointCloud<PointType>::Ptr modifiedCloud1(new pcl::PointCloud<PointType>);
-        // Convert outlierCloud to the modified point type
-        pcl::copyPointCloud(*outlierCloud, *modifiedCloud1);
-        // Convert the modified point cloud to ROS message
-        sensor_msgs::PointCloud2 laserCloudTemp1;
-        pcl::toROSMsg(*modifiedCloud1, laserCloudTemp1);
-        laserCloudTemp1.header.stamp = cloudHeader.stamp;
-        laserCloudTemp1.header.frame_id = "base_link";
-        pubOutlierCloud.publish(laserCloudTemp1);
-
+        pcl::toROSMsg(*outlierCloud, laserCloudTemp);
+        laserCloudTemp.header.stamp = cloudHeader.stamp;
+        laserCloudTemp.header.frame_id = "base_link";
+        pubOutlierCloud.publish(laserCloudTemp);
         // segmented cloud with ground
-        pcl::PointCloud<PointType>::Ptr modifiedCloud2(new pcl::PointCloud<PointType>);
-        // Convert segmentedCloud to the modified point type
-        pcl::copyPointCloud(*segmentedCloud, *modifiedCloud2);
-        // Convert the modified point cloud to ROS message
-        sensor_msgs::PointCloud2 laserCloudTemp2;
-        pcl::toROSMsg(*modifiedCloud2, laserCloudTemp2);
-        laserCloudTemp2.header.stamp = cloudHeader.stamp;
-        laserCloudTemp2.header.frame_id = "base_link";
-        pubSegmentedCloud.publish(laserCloudTemp2);
-
+        pcl::toROSMsg(*segmentedCloud, laserCloudTemp);
+        laserCloudTemp.header.stamp = cloudHeader.stamp;
+        laserCloudTemp.header.frame_id = "base_link";
+        pubSegmentedCloud.publish(laserCloudTemp);
         // projected full cloud
-        if (pubFullCloud.getNumSubscribers() != 0) {
-            pcl::PointCloud<PointType>::Ptr modifiedCloud3(new pcl::PointCloud<PointType>);
-            // Convert fullCloud to the modified point type
-            pcl::copyPointCloud(*fullCloud, *modifiedCloud3);
-            // Convert the modified point cloud to ROS message
-            sensor_msgs::PointCloud2 laserCloudTemp3;
-            pcl::toROSMsg(*modifiedCloud3, laserCloudTemp3);
-            laserCloudTemp3.header.stamp = cloudHeader.stamp;
-            laserCloudTemp3.header.frame_id = "base_link";
-            pubFullCloud.publish(laserCloudTemp3);
+        if (pubFullCloud.getNumSubscribers() != 0){
+            pcl::toROSMsg(*fullCloud, laserCloudTemp);
+            laserCloudTemp.header.stamp = cloudHeader.stamp;
+            laserCloudTemp.header.frame_id = "base_link";
+            pubFullCloud.publish(laserCloudTemp);
         }
-
         // original dense ground cloud
-            pcl::PointCloud<PointType>::Ptr modifiedGroundCloud(new pcl::PointCloud<PointType>);
-            pcl::copyPointCloud(*groundCloud, *modifiedGroundCloud);
-            sensor_msgs::PointCloud2 laserCloudTempGround;
-            pcl::toROSMsg(*modifiedGroundCloud, laserCloudTempGround);
-
-
-            laserCloudTempGround.header.stamp = cloudHeader.stamp;
-            laserCloudTempGround.header.frame_id = "base_link";
-            pubGroundCloud.publish(laserCloudTempGround);
+        if (pubGroundCloud.getNumSubscribers() != 0){
+            pcl::toROSMsg(*groundCloud, laserCloudTemp);
+            laserCloudTemp.header.stamp = cloudHeader.stamp;
+            laserCloudTemp.header.frame_id = "base_link";
+            pubGroundCloud.publish(laserCloudTemp);
         }
-
         // segmented cloud without ground
-        if (pubSegmentedCloudPure.getNumSubscribers() != 0) {
-            pcl::PointCloud<PointType>::Ptr modifiedCloud5(new pcl::PointCloud<PointType>);
-            pcl::copyPointCloud(*segmentedCloudPure, *modifiedCloud5);
-            sensor_msgs::PointCloud2 laserCloudTemp5;
-            pcl::toROSMsg(*modifiedCloud5, laserCloudTemp5);
-            laserCloudTemp5.header.stamp = cloudHeader.stamp;
-            laserCloudTemp5.header.frame_id = "base_link";
-            pubSegmentedCloudPure.publish(laserCloudTemp5);
+        if (pubSegmentedCloudPure.getNumSubscribers() != 0){
+            pcl::toROSMsg(*segmentedCloudPure, laserCloudTemp);
+            laserCloudTemp.header.stamp = cloudHeader.stamp;
+            laserCloudTemp.header.frame_id = "base_link";
+            pubSegmentedCloudPure.publish(laserCloudTemp);
         }
-
         // projected full cloud info
-        if (pubFullInfoCloud.getNumSubscribers() != 0) {
-            pcl::PointCloud<PointType>::Ptr modifiedFullInfoCloud(new pcl::PointCloud<PointType>);
-            pcl::copyPointCloud(*fullInfoCloud, *modifiedFullInfoCloud);
-            sensor_msgs::PointCloud2 laserCloudTempFullInfo;
-            pcl::toROSMsg(*modifiedFullInfoCloud, laserCloudTempFullInfo);
-            laserCloudTempFullInfo.header.stamp = cloudHeader.stamp;
-            laserCloudTempFullInfo.header.frame_id = "base_link";
-            pubFullInfoCloud.publish(laserCloudTempFullInfo);
+        if (pubFullInfoCloud.getNumSubscribers() != 0){
+            pcl::toROSMsg(*fullInfoCloud, laserCloudTemp);
+            laserCloudTemp.header.stamp = cloudHeader.stamp;
+            laserCloudTemp.header.frame_id = "base_link";
+            pubFullInfoCloud.publish(laserCloudTemp);
         }
     }
 };
