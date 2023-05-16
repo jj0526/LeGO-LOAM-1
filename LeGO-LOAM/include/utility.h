@@ -42,12 +42,15 @@
 using namespace std;
 
 // Define the custom point type with the "isGround" field
-struct PointXYZIRGround : public pcl::PointXYZIR
+struct PointXYZIGround
 {
-  int isGround;  // Additional "isGround" field
-};
+  PCL_ADD_POINT4D
+  PCL_ADD_INTENSITY;
+  int isGround = 0;  // Additional "isGround" field
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+}EIGEN_ALIGN16;
 
-typedef PointXYZIRGround PointType;
+typedef PointXYZIGround PointType;
 
 extern const string pointCloudTopic;
 extern const string imuTopic;
