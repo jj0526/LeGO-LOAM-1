@@ -50,6 +50,13 @@ struct PointXYZIGround
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 }EIGEN_ALIGN16;
 
+POINT_CLOUD_REGISTER_POINT_STRUCT(PointXYZIGround,
+                                  (float, x, x)
+                                  (float, y, y)
+                                  (float, z, z)
+                                  (float, intensity, intensity)
+                                  (int, isGround, isGround))
+
 typedef PointXYZIGround PointType;
 
 extern const string pointCloudTopic;
