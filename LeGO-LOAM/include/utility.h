@@ -233,19 +233,18 @@ void removeNaNFromPointCloud(const pcl::PointCloud<PointT>& cloud_in,
                              std::vector<int>& indices)
 {
   std::vector<int> finite_indices;
-  pcl::removeNaNFromPointCloud(cloud_in, finite_indices);
 
-  cloud_out.clear();
-  cloud_out.reserve(finite_indices.size());
-  indices.clear();
-  indices.reserve(finite_indices.size());
-
-  for (int i : finite_indices)
+  // Logic to remove NaN points
+  for (int i = 0; i < cloud_in.size(); ++i)
   {
-    cloud_out.push_back(cloud_in[i]);
-    indices.push_back(i);
+    if (pcl::isFinite(cloud_in[i]))
+    {
+      cloud_out.push_back(cloud_in[i]);
+      indices.push_back(i);
+    }
   }
 }
+
 
 
 #endif
