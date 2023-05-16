@@ -164,13 +164,13 @@ public:
 
         cloudHeader = laserCloudMsg->header;
         // cloudHeader.stamp = ros::Time::now(); // Ouster lidar users may need to uncomment this line
-        pcl::fromROSMsg<PointType>(*laserCloudMsg, *laserCloudIn);
+        pcl::fromROSMsg(*laserCloudMsg, *laserCloudIn);
         // Remove Nan points
         std::vector<int> indices;
         pcl::removeNaNFromPointCloud(*laserCloudIn, *laserCloudIn, indices);
         // have "ring" channel in the cloud
         if (useCloudRing == true){
-            pcl::fromROSMsg<PointType>(*laserCloudMsg, *laserCloudInRing);
+            pcl::fromROSMsg(*laserCloudMsg, *laserCloudInRing);
             if (laserCloudInRing->is_dense == false) {
                 ROS_ERROR("Point cloud is not in dense format, please remove NaN points first!");
                 ros::shutdown();
@@ -507,7 +507,6 @@ public:
         }
 
         // original dense ground cloud
-        if (pubGroundCloud.getNumSubscribers() != 0) {
             pcl::PointCloud<PointType>::Ptr modifiedGroundCloud(new pcl::PointCloud<PointType>);
             pcl::copyPointCloud(*groundCloud, *modifiedGroundCloud);
             sensor_msgs::PointCloud2 laserCloudTempGround;
