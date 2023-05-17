@@ -44,8 +44,6 @@
 
 #include <gtsam/nonlinear/ISAM2.h>
 
-#include "PointCloudUtils.h"
-
 using namespace gtsam;
 
 class mapOptimization{
@@ -732,25 +730,71 @@ public:
         // save final point cloud
         pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
 
-        //////////////////////////////////////
 
+        ////////////////////////////////////////////////////////////
+        pcl::PointCloud<PointType>::Ptr mappedGround;
+        groundMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_8S, cv::Scalar::all(0));
 
+        size_t lowerInd, upperInd;
+        float diffX, diffY, diffZ, angle;
+        // groundMat
+        // -1, no valid info to check if ground of not
+        //  0, initial value, after validation, means not ground
+        //  1, ground
+        for (size_t j = 0; j < Horizon_SCAN; ++j){
+            for (size_t i = 0; i < groundScanInd; ++i){
+
+                lowerInd = j + ( i )*Horizon_SCAN;
+                upperInd = j + (i+1)*Horizon_SCAN;
+
+                if (globalMapKeyFramesDS->points[lowerInd].intensity == -1 ||
+                    globalMapKeyFramesDS->points[upperInd].intensity == -1){
+                    // no info to check, invalid points
+                    groundMat.at<int8_t>(i,j) = -1;
+                    continue;
+                }
+                    
+                diffX = globalMapKeyFramesDS->points[upperInd].x - globalMapKeyFramesDS->points[lowerInd].x;
+                diffY = globalMapKeyFramesDS->points[upperInd].y - globalMapKeyFramesDS->points[lowerInd].y;
+                diffZ = globalMapKeyFramesDS->points[upperInd].z - globalMapKeyFramesDS->points[lowerInd].z;
+
+                angle = atan2(diffZ, sqrt(diffX*diffX + diffY*diffY) ) * 180 / M_PI;
+
+                if (abs(angle - sensorMountAngle) <= 10){
+                    groundMat.at<int8_t>(i,j) = 1;
+                    groundMat.at<int8_t>(i+1,j) = 1;
+                }
+            }
+        }
+        // extract ground cloud (groundMat == 1)
+        // mark entry that doesn't need to label (ground and invalid point) for segmentation
+        // note that ground remove is from 0~N_SCAN-1, need rangeMat for mark label matrix for the 16th scan
+        
+        }
         for (size_t i = 0; i <= groundScanInd; ++i){
             for (size_t j = 0; j < Horizon_SCAN; ++j){
-                if (groundPointCloud->points[j + i*Horizon_SCAN].isGround == 1){
-                    groundPointCloud->push_back(globalMapKeyFramesDS->points[j + i*Horizon_SCAN]);
-                }
+                if (groundMat.at<int8_t>(i,j) == 1)
+                    mappedGround->push_back(globalMapKeyFramesDS->points[j + i*Horizon_SCAN]);
+                
             }
         }
 
 
-        pcl::io::savePCDFileASCII("/temp/groundPointCloud.pcd", *groundPointCloud);
+
+        ////////////////////////////////////////////////////////////
+
+
+         pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *mappedGround);
 
 
 
 
 
-        //////////////////////////////////////
+
+
+
+
+
 
         string cornerMapString = "/tmp/cornerMap.pcd";
         string surfaceMapString = "/tmp/surfaceMap.pcd";

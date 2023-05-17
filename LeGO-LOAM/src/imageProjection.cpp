@@ -33,8 +33,6 @@
 //      IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS). October 2018.
 
 #include "utility.h"
-#include "PointCloudUtils.h"
-
 
 class ImageProjection{
 private:
@@ -62,7 +60,6 @@ private:
     pcl::PointCloud<PointType>::Ptr segmentedCloud;
     pcl::PointCloud<PointType>::Ptr segmentedCloudPure;
     pcl::PointCloud<PointType>::Ptr outlierCloud;
-
 
     PointType nanPoint; // fill in fullCloud at each iteration
 
@@ -122,12 +119,8 @@ public:
         segmentedCloudPure.reset(new pcl::PointCloud<PointType>());
         outlierCloud.reset(new pcl::PointCloud<PointType>());
 
-        //mappedGroundCloud.reset(new pcl::PointCloud<PointTypeWithGround>());
-
         fullCloud->points.resize(N_SCAN*Horizon_SCAN);
         fullInfoCloud->points.resize(N_SCAN*Horizon_SCAN);
-
-        //mappedGroundCloud->points.resize(N_SCAN*Horizon_SCAN);
 
         segMsg.startRingIndex.assign(N_SCAN, 0);
         segMsg.endRingIndex.assign(N_SCAN, 0);
@@ -155,7 +148,6 @@ public:
         segmentedCloud->clear();
         segmentedCloudPure->clear();
         outlierCloud->clear();
-        
 
         rangeMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_32F, cv::Scalar::all(FLT_MAX));
         groundMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_8S, cv::Scalar::all(0));
@@ -164,7 +156,6 @@ public:
 
         std::fill(fullCloud->points.begin(), fullCloud->points.end(), nanPoint);
         std::fill(fullInfoCloud->points.begin(), fullInfoCloud->points.end(), nanPoint);
-        //std::fill(mappedGroundCloud->points.begin(), mappedGroundCloud->points.end(), nanPoint);
     }
 
     ~ImageProjection(){}
@@ -265,22 +256,8 @@ public:
         }
     }
 
-    void copyXYZ(){
-        for (size_t i = 0; i < fullCloud->size(); ++i)
-        {
-            const PointType& sourcePoint = fullCloud->points[i];
-            PointTypeWithGround targetPoint;
-            targetPoint.x = sourcePoint.x;
-            targetPoint.y = sourcePoint.y;
-            targetPoint.z = sourcePoint.z;
-
-            mappedGroundCloud->push_back(targetPoint);
-        }
-    }
-
 
     void groundRemoval(){
-        copyXYZ();
         size_t lowerInd, upperInd;
         float diffX, diffY, diffZ, angle;
         // groundMat
@@ -325,13 +302,8 @@ public:
         if (pubGroundCloud.getNumSubscribers() != 0){
             for (size_t i = 0; i <= groundScanInd; ++i){
                 for (size_t j = 0; j < Horizon_SCAN; ++j){
-                    if (groundMat.at<int8_t>(i,j) == 1){
-                        mappedGroundCloud->points[j + i*Horizon_SCAN] = 1;
+                    if (groundMat.at<int8_t>(i,j) == 1)
                         groundCloud->push_back(fullCloud->points[j + i*Horizon_SCAN]);
-                    }
-                    else{
-                        mappedGroundCloud->points[j + i*Horizon_SCAN] = 0;
-                    }
                 }
             }
         }
