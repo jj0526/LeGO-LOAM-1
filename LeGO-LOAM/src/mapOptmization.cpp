@@ -733,6 +733,7 @@ public:
 
         ////////////////////////////////////////////////////////////
         pcl::PointCloud<PointType>::Ptr mappedGround;
+        cv::Mat groundMat; // ground matrix for ground cloud marking
         groundMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_8S, cv::Scalar::all(0));
 
         size_t lowerInd, upperInd;
