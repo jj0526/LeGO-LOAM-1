@@ -728,7 +728,7 @@ public:
             publishGlobalMap();
         }
         // save final point cloud
-        pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
+        pcl::io::savePCDFileASCII("/tmp/finalCloud.pcd", *globalMapKeyFramesDS);
 
 
 
