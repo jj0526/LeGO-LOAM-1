@@ -756,7 +756,7 @@ public:
 
         // Save ground point cloud
         if (!mappedgroundPointCloud->empty()) {
-            pcl::io::savePCDFileBinary("/tmp/mappedgroundPointCloud.pcd", *mappedgroundPointCloud);
+            pcl::io::savePCDFileBinary("/tmp/mappedgroundPointCloud.bin", *mappedgroundPointCloud);
         } else {
             std::cout << "No ground points found!" << std::endl;
         }
