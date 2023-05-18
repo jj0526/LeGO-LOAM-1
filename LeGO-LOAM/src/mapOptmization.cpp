@@ -731,6 +731,7 @@ public:
         pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
 
 
+
         ////////////////////////////////////////////////////////////
         pcl::PointCloud<PointType>::Ptr mappedGround;
         cv::Mat groundMat; // ground matrix for ground cloud marking
@@ -780,23 +781,14 @@ public:
             }
         }
 
-
+        pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *mappedGround);
 
         ////////////////////////////////////////////////////////////
 
 
-         pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *mappedGround);
 
 
-
-
-
-
-
-
-
-
-
+        
         string cornerMapString = "/tmp/cornerMap.pcd";
         string surfaceMapString = "/tmp/surfaceMap.pcd";
         string trajectoryString = "/tmp/trajectory.pcd";
