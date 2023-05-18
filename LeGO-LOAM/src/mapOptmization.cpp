@@ -728,68 +728,40 @@ public:
             publishGlobalMap();
         }
         // save final point cloud
-        pcl::io::savePCDFileASCII("/tmp/finalCloud.pcd", *globalMapKeyFramesDS);
+        pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
+        //////////////////////////////////////////////////////
+        pcl::PointCloud<PointType>::Ptr mappedgroundPointCloud(new pcl::PointCloud<PointType>());
 
+        // Set the parameters for RANSAC ground segmentation
+        pcl::SACSegmentation<PointType> seg;
+        seg.setOptimizeCoefficients(true);
+        seg.setModelType(pcl::SACMODEL_PLANE);
+        seg.setMethodType(pcl::SAC_RANSAC);
+        seg.setMaxIterations(100);
+        seg.setDistanceThreshold(0.3); // Adjust this threshold as needed
 
+        // Perform RANSAC ground segmentation
+        pcl::PointIndices::Ptr inlierIndices(new pcl::PointIndices());
+        pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+        seg.setInputCloud(globalMapKeyFramesDS);
+        seg.segment(*inlierIndices, *coefficients);
 
-        ////////////////////////////////////////////////////////////
-        pcl::PointCloud<PointType>::Ptr mappedGround(new pcl::PointCloud<PointType>);
-        cv::Mat groundMat; // ground matrix for ground cloud marking
-        groundMat = cv::Mat(N_SCAN, Horizon_SCAN, CV_8S, cv::Scalar::all(0));
+        // Extract ground points using inlier indices
+        pcl::ExtractIndices<PointType> extract;
+        extract.setInputCloud(globalMapKeyFramesDS);
+        extract.setIndices(inlierIndices);
+        extract.setNegative(false);
+        extract.filter(*mappedgroundPointCloud);
 
-        size_t lowerInd, upperInd;
-        float diffX, diffY, diffZ, angle;
-        // groundMat
-        // -1, no valid info to check if ground of not
-        //  0, initial value, after validation, means not ground
-        //  1, ground
-        for (size_t j = 0; j < Horizon_SCAN; ++j){
-            for (size_t i = 0; i < groundScanInd; ++i){
-
-                lowerInd = j + ( i )*Horizon_SCAN;
-                upperInd = j + (i+1)*Horizon_SCAN;
-
-                if (globalMapKeyFramesDS->points[lowerInd].intensity == -1 ||
-                    globalMapKeyFramesDS->points[upperInd].intensity == -1){
-                    // no info to check, invalid points
-                    groundMat.at<int8_t>(i,j) = -1;
-                    continue;
-                }
-                    
-                diffX = globalMapKeyFramesDS->points[upperInd].x - globalMapKeyFramesDS->points[lowerInd].x;
-                diffY = globalMapKeyFramesDS->points[upperInd].y - globalMapKeyFramesDS->points[lowerInd].y;
-                diffZ = globalMapKeyFramesDS->points[upperInd].z - globalMapKeyFramesDS->points[lowerInd].z;
-
-                angle = atan2(diffZ, sqrt(diffX*diffX + diffY*diffY) ) * 180 / M_PI;
-
-                if (abs(angle - sensorMountAngle) <= 10){
-                    groundMat.at<int8_t>(i,j) = 1;
-                    groundMat.at<int8_t>(i+1,j) = 1;
-                }
-            }
-        }
-        // extract ground cloud (groundMat == 1)
-        // mark entry that doesn't need to label (ground and invalid point) for segmentation
-        // note that ground remove is from 0~N_SCAN-1, need rangeMat for mark label matrix for the 16th scan
-        
-        
-        for (size_t i = 0; i <= groundScanInd; ++i){
-            for (size_t j = 0; j < Horizon_SCAN; ++j){
-                if (groundMat.at<int8_t>(i,j) == 1&& globalMapKeyFramesDS->points[j + i * Horizon_SCAN].intensity != -1){
-                    mappedGround->push_back(globalMapKeyFramesDS->points[j + i*Horizon_SCAN]);
-                }
-                
-            }
+        // Save ground point cloud
+        if (!mappedgroundPointCloud->empty()) {
+            pcl::io::savePCDFileBinary("/tmp/mappedgroundPointCloud.pcd", *mappedgroundPointCloud);
+        } else {
+            std::cout << "No ground points found!" << std::endl;
         }
 
-        pcl::io::savePCDFileASCII("/tmp/mappedGround.pcd", *mappedGround);
 
-        ////////////////////////////////////////////////////////////
-
-
-
-
-        
+        ///////////////////////////////////
         string cornerMapString = "/tmp/cornerMap.pcd";
         string surfaceMapString = "/tmp/surfaceMap.pcd";
         string trajectoryString = "/tmp/trajectory.pcd";
@@ -801,8 +773,8 @@ public:
         
         for(int i = 0; i < cornerCloudKeyFrames.size(); i++) {
             *cornerMapCloud  += *transformPointCloud(cornerCloudKeyFrames[i],   &cloudKeyPoses6D->points[i]);
-    	    *surfaceMapCloud += *transformPointCloud(surfCloudKeyFrames[i],     &cloudKeyPoses6D->points[i]);
-    	    *surfaceMapCloud += *transformPointCloud(outlierCloudKeyFrames[i],  &cloudKeyPoses6D->points[i]);
+            *surfaceMapCloud += *transformPointCloud(surfCloudKeyFrames[i],     &cloudKeyPoses6D->points[i]);
+            *surfaceMapCloud += *transformPointCloud(outlierCloudKeyFrames[i],  &cloudKeyPoses6D->points[i]);
         }
 
         downSizeFilterCorner.setInputCloud(cornerMapCloud);
