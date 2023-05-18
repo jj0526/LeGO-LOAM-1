@@ -775,8 +775,9 @@ public:
         
         for (size_t i = 0; i <= groundScanInd; ++i){
             for (size_t j = 0; j < Horizon_SCAN; ++j){
-                if (groundMat.at<int8_t>(i,j) == 1)
+                if (groundMat.at<int8_t>(i,j) == 1&& globalMapKeyFramesDS->points[j + i * Horizon_SCAN].intensity != -1){
                     mappedGround->push_back(globalMapKeyFramesDS->points[j + i*Horizon_SCAN]);
+                }
                 
             }
         }
