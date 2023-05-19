@@ -819,7 +819,7 @@ public:
 			*globalMapKeyFrames += *transformPointCloud(outlierCloudKeyFrames[thisKeyInd], &cloudKeyPoses6D->points[thisKeyInd]);
         }
 	    // downsample visualized points
-        globalMapKeyFramesDS = globalMapKeyFrames;
+        *globalMapKeyFramesDS = *globalMapKeyFrames;
  
         sensor_msgs::PointCloud2 cloudMsgTemp;
         pcl::toROSMsg(*globalMapKeyFramesDS, cloudMsgTemp);
