@@ -729,8 +729,8 @@ public:
             publishGlobalMap();
         }
         // save final point cloud
-        pcl::io::savePCDFileASCII(fileDirectory+"finalCloudASCII.pcd", *globalMapKeyFramesDS);
-        pcl::io::savePCDFileBinary(fileDirectory+"finalCloudBIN.bin", *globalMapKeyFramesDS);
+        pcl::io::savePCDFileASCII("/tmp/finalCloudASCII.pcd", *globalMapKeyFramesDS);
+        pcl::io::savePCDFileBinary("/tmp/finalCloudBIN.bin", *globalMapKeyFramesDS);
         //////////////////////////////////////////////////////
         pcl::PointCloud<PointType>::Ptr mappedgroundPointCloud(new pcl::PointCloud<PointType>());
 
@@ -819,8 +819,8 @@ public:
 			*globalMapKeyFrames += *transformPointCloud(outlierCloudKeyFrames[thisKeyInd], &cloudKeyPoses6D->points[thisKeyInd]);
         }
 	    // downsample visualized points
-        downSizeFilterGlobalMapKeyFrames.setInputCloud(globalMapKeyFrames);
-        downSizeFilterGlobalMapKeyFrames.filter(*globalMapKeyFramesDS);
+        //downSizeFilterGlobalMapKeyFrames.setInputCloud(globalMapKeyFrames);
+        //downSizeFilterGlobalMapKeyFrames.filter(*globalMapKeyFramesDS);
  
         sensor_msgs::PointCloud2 cloudMsgTemp;
         pcl::toROSMsg(*globalMapKeyFramesDS, cloudMsgTemp);
