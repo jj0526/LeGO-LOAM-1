@@ -255,7 +255,7 @@ public:
         downSizeFilterSurroundingKeyPoses.setLeafSize(1.0, 1.0, 1.0); // for surrounding key poses of scan-to-map optimization
 
         downSizeFilterGlobalMapKeyPoses.setLeafSize(1.0, 1.0, 1.0); // for global map visualization
-        downSizeFilterGlobalMapKeyFrames.setLeafSize(0.4, 0.4, 0.4); // for global map visualization
+        downSizeFilterGlobalMapKeyFrames.setLeafSize(0.05f, 0.05f, 0.05f); // for global map visualization
 
         odomAftMapped.header.frame_id = "camera_init";
         odomAftMapped.child_frame_id = "/aft_mapped";
@@ -819,7 +819,9 @@ public:
 			*globalMapKeyFrames += *transformPointCloud(outlierCloudKeyFrames[thisKeyInd], &cloudKeyPoses6D->points[thisKeyInd]);
         }
 	    // downsample visualized points
-        *globalMapKeyFramesDS = *globalMapKeyFrames;
+        downSizeFilterGlobalMapKeyFrames.setInputCloud(globalMapKeyFrames);
+        
+        downSizeFilterGlobalMapKeyFrames.filter(*globalMapKeyFramesDS);
  
         sensor_msgs::PointCloud2 cloudMsgTemp;
         pcl::toROSMsg(*globalMapKeyFramesDS, cloudMsgTemp);
