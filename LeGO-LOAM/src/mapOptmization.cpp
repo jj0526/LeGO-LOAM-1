@@ -729,7 +729,8 @@ public:
             publishGlobalMap();
         }
         // save final point cloud
-        pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
+        pcl::io::savePCDFileASCII(fileDirectory+"finalCloudASCII.pcd", *globalMapKeyFramesDS);
+        pcl::io::savePCDFileBinary(fileDirectory+"finalCloudBIN.bin", *globalMapKeyFramesDS);
         //////////////////////////////////////////////////////
         pcl::PointCloud<PointType>::Ptr mappedgroundPointCloud(new pcl::PointCloud<PointType>());
 
