@@ -729,7 +729,7 @@ public:
             publishGlobalMap();
         }
         // save final point cloud
-        pcl::io::savePCDFileASCII("/tmp/finalCloud.pcd", *globalMapKeyFramesDS);
+        pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
         //////////////////////////////////////////////////////
         pcl::PointCloud<PointType>::Ptr mappedgroundPointCloud(new pcl::PointCloud<PointType>());
 
@@ -739,7 +739,7 @@ public:
         seg.setModelType(pcl::SACMODEL_PLANE);
         seg.setMethodType(pcl::SAC_RANSAC);
         seg.setMaxIterations(100);
-        seg.setDistanceThreshold(0.6); // Adjust this threshold as needed
+        seg.setDistanceThreshold(0.3); // Adjust this threshold as needed
 
         // Perform RANSAC ground segmentation
         pcl::PointIndices::Ptr inlierIndices(new pcl::PointIndices());
@@ -757,7 +757,7 @@ public:
         // Save ground point cloud
         if (!mappedgroundPointCloud->empty()) {
             pcl::io::savePCDFileBinary("/tmp/mappedgroundPointCloudBIN.bin", *mappedgroundPointCloud);
-            pcl::io::savePCDFileASCII("/tmp/mappedgroundPointCloudASCII.bin", *mappedgroundPointCloud);
+            pcl::io::savePCDFileASCII("/tmp/mappedgroundPointCloudASCII.pcd", *mappedgroundPointCloud);
         } else {
             std::cout << "No ground points found!" << std::endl;
         }
@@ -831,6 +831,78 @@ public:
         globalMapKeyPosesDS->clear();
         globalMapKeyFrames->clear();
         // globalMapKeyFramesDS->clear();     
+    }
+
+    void loopClosureThread(){
+
+        if (loopClosureEnableFlag == false)
+            return;
+
+        ros::Rate rate(1);
+        while (ros::ok()){
+            rate.sleep();
+            performLoopClosure();
+        }
+    }
+
+    bool detectLoopClosure(){
+
+        latestSurfKeyFrameCloud->clear();
+        nearHistorySurfKeyFrameCloud->clear();
+        nearHistorySurfKeyFrameCloudDS->clear();
+
+        std::lock_guard<std::mutex> lock(mtx);
+        // find the closest history key frame
+        std::vector<int> pointSearchIndLoop;
+        std::vector<float> pointSearchSqDisLoop;
+        kdtreeHistoryKeyPoses->setInputCloud(cloudKeyPoses3D);
+        kdtreeHistoryKeyPoses->radiusSearch(currentRobotPosPoint, historyKeyframeSearchRadius, pointSearchIndLoop, pointSearchSqDisLoop, 0);
+        
+        closestHistoryFrameID = -1;
+        for (int i = 0; i < pointSearchIndLoop.size(); ++i){
+            int id = pointSearchIndLoop[i];
+            if (abs(cloudKeyPoses6D->points[id].time - timeLaserOdometry) > 30.0){
+                closestHistoryFrameID = id;
+                break;
+            }
+        }
+        if (closestHistoryFrameID == -1){
+            return false;
+        }
+        // save latest key frames
+        latestFrameIDLoopCloure = cloudKeyPoses3D->points.size() - 1;
+        *latestSurfKeyFrameCloud += *transformPointCloud(cornerCloudKeyFrames[latestFrameIDLoopCloure], &cloudKeyPoses6D->points[latestFrameIDLoopCloure]);
+        *latestSurfKeyFrameCloud += *transformPointCloud(surfCloudKeyFrames[latestFrameIDLoopCloure],   &cloudKeyPoses6D->points[latestFrameIDLoopCloure]);
+
+        pcl::PointCloud<PointType>::Ptr hahaCloud(new pcl::PointCloud<PointType>());
+        int cloudSize = latestSurfKeyFrameCloud->points.size();
+        for (int i = 0; i < cloudSize; ++i){
+            if ((int)latestSurfKeyFrameCloud->points[i].intensity >= 0){
+                hahaCloud->push_back(latestSurfKeyFrameCloud->points[i]);
+            }
+        }
+        latestSurfKeyFrameCloud->clear();
+        *latestSurfKeyFrameCloud = *hahaCloud;
+	   // save history near key frames
+        for (int j = -historyKeyframeSearchNum; j <= historyKeyframeSearchNum; ++j){
+            if (closestHistoryFrameID + j < 0 || closestHistoryFrameID + j > latestFrameIDLoopCloure)
+                continue;
+            *nearHistorySurfKeyFrameCloud += *transformPointCloud(cornerCloudKeyFrames[closestHistoryFrameID+j], &cloudKeyPoses6D->points[closestHistoryFrameID+j]);
+            *nearHistorySurfKeyFrameCloud += *transformPointCloud(surfCloudKeyFrames[closestHistoryFrameID+j],   &cloudKeyPoses6D->points[closestHistoryFrameID+j]);
+        }
+
+        downSizeFilterHistoryKeyFrames.setInputCloud(nearHistorySurfKeyFrameCloud);
+        downSizeFilterHistoryKeyFrames.filter(*nearHistorySurfKeyFrameCloudDS);
+        // publish history near key frames
+        if (pubHistoryKeyFrames.getNumSubscribers() != 0){
+            sensor_msgs::PointCloud2 cloudMsgTemp;
+            pcl::toROSMsg(*nearHistorySurfKeyFrameCloudDS, cloudMsgTemp);
+            cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
+            cloudMsgTemp.header.frame_id = "camera_init";
+            pubHistoryKeyFrames.publish(cloudMsgTemp);
+        }
+
+        return true;
     }
 
 
