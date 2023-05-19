@@ -819,8 +819,7 @@ public:
 			*globalMapKeyFrames += *transformPointCloud(outlierCloudKeyFrames[thisKeyInd], &cloudKeyPoses6D->points[thisKeyInd]);
         }
 	    // downsample visualized points
-        //downSizeFilterGlobalMapKeyFrames.setInputCloud(globalMapKeyFrames);
-        //downSizeFilterGlobalMapKeyFrames.filter(*globalMapKeyFramesDS);
+        globalMapKeyFramesDS = globalMapKeyFrames;
  
         sensor_msgs::PointCloud2 cloudMsgTemp;
         pcl::toROSMsg(*globalMapKeyFramesDS, cloudMsgTemp);
