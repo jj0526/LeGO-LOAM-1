@@ -757,17 +757,7 @@ public:
         // Save ground point cloud
         if (!mappedgroundPointCloud->empty()) {
             while (globalMapKeyFramesDS->size() % 4 != 0) {
-                pcl::PointCloud<PointType>::Ptr zeroPoint(new pcl::PointCloud<PointType>());
-                zeroPoint->points.resize(1);
-                zeroPoint->points[0].x = 0.0;
-                zeroPoint->points[0].y = 0.0;
-                zeroPoint->points[0].z = 0.0;
-                zeroPoint->points[0].intensity = 0.0;
-                // Add the zero point to the point cloud
-                size_t numZeroPoints = 4 - (globalMapKeyFramesDS->size() % 4);
-                for (size_t i = 0; i < numZeroPoints; ++i) {
-                    globalMapKeyFramesDS->points.push_back(zeroPoint->points[0]);
-                }
+                globalMapKeyFramesDS->points.pop_back();
             }
             pcl::io::savePCDFileASCII("/tmp/finalCloudASCII.pcd", *globalMapKeyFramesDS);
             pcl::io::savePCDFileBinary("/tmp/finalCloudBIN.bin", *globalMapKeyFramesDS);
