@@ -729,8 +729,7 @@ public:
             publishGlobalMap();
         }
         // save final point cloud
-        pcl::io::savePCDFileASCII("/tmp/finalCloudASCII.pcd", *globalMapKeyFramesDS);
-        pcl::io::savePCDFileBinary("/tmp/finalCloudBIN.bin", *globalMapKeyFramesDS);
+        
         //////////////////////////////////////////////////////
         pcl::PointCloud<PointType>::Ptr mappedgroundPointCloud(new pcl::PointCloud<PointType>());
 
@@ -770,6 +769,8 @@ public:
                     globalMapKeyFramesDS->points.push_back(zeroPoint->points[0]);
                 }
             }
+            pcl::io::savePCDFileASCII("/tmp/finalCloudASCII.pcd", *globalMapKeyFramesDS);
+            pcl::io::savePCDFileBinary("/tmp/finalCloudBIN.bin", *globalMapKeyFramesDS);
             pcl::io::savePCDFileBinary("/tmp/mappedgroundPointCloudBIN.bin", *mappedgroundPointCloud);
             pcl::io::savePCDFileASCII("/tmp/mappedgroundPointCloudASCII.pcd", *mappedgroundPointCloud);
         } else {
