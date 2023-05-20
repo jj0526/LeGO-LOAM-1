@@ -759,10 +759,10 @@ public:
         if (!mappedgroundPointCloud->empty()) {
             while (globalMapKeyFramesDS->size() % 4 != 0) {
                 pcl::PointCloud<PointType>::Ptr zeroPoint;
-                zeroPoint.x = 0.0;
-                zeroPoint.y = 0.0;
-                zeroPoint.z = 0.0;
-                zeroPoint.intensity = 0.0;
+                zeroPoint->x = 0.0;
+                zeroPoint->y = 0.0;
+                zeroPoint->z = 0.0;
+                zeroPoint->intensity = 0.0;
                 // Add the zero point to the point cloud
                 globalMapKeyFramesDS->points.push_back(zeroPoint);
             }
