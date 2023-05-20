@@ -255,7 +255,7 @@ public:
         downSizeFilterSurroundingKeyPoses.setLeafSize(1.0, 1.0, 1.0); // for surrounding key poses of scan-to-map optimization
 
         downSizeFilterGlobalMapKeyPoses.setLeafSize(1.0, 1.0, 1.0); // for global map visualization
-        downSizeFilterGlobalMapKeyFrames.setLeafSize(0.05f, 0.05f, 0.05f); // for global map visualization
+        downSizeFilterGlobalMapKeyFrames.setLeafSize(0.2, 0.2, 0.2); // for global map visualization
 
         odomAftMapped.header.frame_id = "camera_init";
         odomAftMapped.child_frame_id = "/aft_mapped";
@@ -740,7 +740,7 @@ public:
         seg.setModelType(pcl::SACMODEL_PLANE);
         seg.setMethodType(pcl::SAC_RANSAC);
         seg.setMaxIterations(100);
-        seg.setDistanceThreshold(0.3); // Adjust this threshold as needed
+        seg.setDistanceThreshold(0.6); // Adjust this threshold as needed
 
         // Perform RANSAC ground segmentation
         pcl::PointIndices::Ptr inlierIndices(new pcl::PointIndices());
@@ -757,6 +757,15 @@ public:
 
         // Save ground point cloud
         if (!mappedgroundPointCloud->empty()) {
+            while (globalMapKeyFramesDS->size() % 4 != 0) {
+                pcl::PointCloud<PointType>::Ptr zeroPoint;
+                zeroPoint.x = 0.0;
+                zeroPoint.y = 0.0;
+                zeroPoint.z = 0.0;
+                zeroPoint.intensity = 0.0;
+                // Add the zero point to the point cloud
+                globalMapKeyFramesDS->points.push_back(zeroPoint);
+            }
             pcl::io::savePCDFileBinary("/tmp/mappedgroundPointCloudBIN.bin", *mappedgroundPointCloud);
             pcl::io::savePCDFileASCII("/tmp/mappedgroundPointCloudASCII.pcd", *mappedgroundPointCloud);
         } else {
