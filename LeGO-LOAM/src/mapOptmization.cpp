@@ -32,8 +32,7 @@
 //   T. Shan and B. Englot. LeGO-LOAM: Lightweight and Ground-Optimized Lidar Odometry and Mapping on Variable Terrain
 //      IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS). October 2018.
 #include "utility.h"
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/filters/extract_indices.h>
+
 #include <gtsam/geometry/Rot3.h>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/slam/PriorFactor.h>
@@ -255,12 +254,12 @@ public:
         downSizeFilterSurroundingKeyPoses.setLeafSize(1.0, 1.0, 1.0); // for surrounding key poses of scan-to-map optimization
 
         downSizeFilterGlobalMapKeyPoses.setLeafSize(1.0, 1.0, 1.0); // for global map visualization
-        downSizeFilterGlobalMapKeyFrames.setLeafSize(0.2, 0.2, 0.2); // for global map visualization
+        downSizeFilterGlobalMapKeyFrames.setLeafSize(0.4, 0.4, 0.4); // for global map visualization
 
-        odomAftMapped.header.frame_id = "camera_init";
+        odomAftMapped.header.frame_id = "/camera_init";
         odomAftMapped.child_frame_id = "/aft_mapped";
 
-        aftMappedTrans.frame_id_ = "camera_init";
+        aftMappedTrans.frame_id_ = "/camera_init";
         aftMappedTrans.child_frame_id_ = "/aft_mapped";
 
         allocateMemory();
@@ -696,7 +695,7 @@ public:
             sensor_msgs::PointCloud2 cloudMsgTemp;
             pcl::toROSMsg(*cloudKeyPoses3D, cloudMsgTemp);
             cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-            cloudMsgTemp.header.frame_id = "camera_init";
+            cloudMsgTemp.header.frame_id = "/camera_init";
             pubKeyPoses.publish(cloudMsgTemp);
         }
 
@@ -704,7 +703,7 @@ public:
             sensor_msgs::PointCloud2 cloudMsgTemp;
             pcl::toROSMsg(*laserCloudSurfFromMapDS, cloudMsgTemp);
             cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-            cloudMsgTemp.header.frame_id = "camera_init";
+            cloudMsgTemp.header.frame_id = "/camera_init";
             pubRecentKeyFrames.publish(cloudMsgTemp);
         }
 
@@ -717,7 +716,7 @@ public:
             sensor_msgs::PointCloud2 cloudMsgTemp;
             pcl::toROSMsg(*cloudOut, cloudMsgTemp);
             cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-            cloudMsgTemp.header.frame_id = "camera_init";
+            cloudMsgTemp.header.frame_id = "/camera_init";
             pubRegisteredCloud.publish(cloudMsgTemp);
         } 
     }
@@ -729,9 +728,10 @@ public:
             publishGlobalMap();
         }
         // save final point cloud
-        
+        pcl::io::savePCDFileASCII("/tmp/finalCloud.pcd", *globalMapKeyFramesDS);
+        pcl::io::savePCDFileBinary ("/tmp/finalCloud.pcd", *globalMapKeyFramesDS);
         //////////////////////////////////////////////////////
-        pcl::PointCloud<PointType>::Ptr mappedgroundPointCloud(new pcl::PointCloud<PointType>());
+        pcl::PointCloud<PointType>::Ptr groundPointCloud(new pcl::PointCloud<PointType>());
 
         // Set the parameters for RANSAC ground segmentation
         pcl::SACSegmentation<PointType> seg;
@@ -739,7 +739,7 @@ public:
         seg.setModelType(pcl::SACMODEL_PLANE);
         seg.setMethodType(pcl::SAC_RANSAC);
         seg.setMaxIterations(100);
-        seg.setDistanceThreshold(0.6); // Adjust this threshold as needed
+        seg.setDistanceThreshold(0.3); // Adjust this threshold as needed
 
         // Perform RANSAC ground segmentation
         pcl::PointIndices::Ptr inlierIndices(new pcl::PointIndices());
@@ -752,20 +752,18 @@ public:
         extract.setInputCloud(globalMapKeyFramesDS);
         extract.setIndices(inlierIndices);
         extract.setNegative(false);
-        extract.filter(*mappedgroundPointCloud);
+        extract.filter(*groundPointCloud);
 
         // Save ground point cloud
-        if (!mappedgroundPointCloud->empty()) {
-            while (globalMapKeyFramesDS->size() % 4 != 0) {
-                globalMapKeyFramesDS->points.pop_back();
-            }
-            pcl::io::savePCDFileASCII("/tmp/finalCloudASCII.pcd", *globalMapKeyFramesDS);
-            pcl::io::savePCDFileBinary("/tmp/finalCloudBIN.bin", *globalMapKeyFramesDS);
-            pcl::io::savePCDFileBinary("/tmp/mappedgroundPointCloudBIN.bin", *mappedgroundPointCloud);
-            pcl::io::savePCDFileASCII("/tmp/mappedgroundPointCloudASCII.pcd", *mappedgroundPointCloud);
+        if (!groundPointCloud->empty()) {
+            pcl::io::savePCDFileASCII("/tmp/groundPointCloud.pcd", *groundPointCloud);
+            pcl::io::savePCDFileASCII ("/tmp/finalCloud.pcd", *groundPointCloud);
         } else {
             std::cout << "No ground points found!" << std::endl;
         }
+
+
+
 
 
         ///////////////////////////////////
@@ -824,13 +822,12 @@ public:
         }
 	    // downsample visualized points
         downSizeFilterGlobalMapKeyFrames.setInputCloud(globalMapKeyFrames);
-        
         downSizeFilterGlobalMapKeyFrames.filter(*globalMapKeyFramesDS);
  
         sensor_msgs::PointCloud2 cloudMsgTemp;
         pcl::toROSMsg(*globalMapKeyFramesDS, cloudMsgTemp);
         cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-        cloudMsgTemp.header.frame_id = "camera_init";
+        cloudMsgTemp.header.frame_id = "/camera_init";
         pubLaserCloudSurround.publish(cloudMsgTemp);  
 
         globalMapKeyPoses->clear();
@@ -904,7 +901,7 @@ public:
             sensor_msgs::PointCloud2 cloudMsgTemp;
             pcl::toROSMsg(*nearHistorySurfKeyFrameCloudDS, cloudMsgTemp);
             cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-            cloudMsgTemp.header.frame_id = "camera_init";
+            cloudMsgTemp.header.frame_id = "/camera_init";
             pubHistoryKeyFrames.publish(cloudMsgTemp);
         }
 
@@ -950,7 +947,7 @@ public:
             sensor_msgs::PointCloud2 cloudMsgTemp;
             pcl::toROSMsg(*closed_cloud, cloudMsgTemp);
             cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
-            cloudMsgTemp.header.frame_id = "camera_init";
+            cloudMsgTemp.header.frame_id = "/camera_init";
             pubIcpKeyFrames.publish(cloudMsgTemp);
         }   
         /*
