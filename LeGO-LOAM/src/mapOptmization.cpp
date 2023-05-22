@@ -32,8 +32,7 @@
 //   T. Shan and B. Englot. LeGO-LOAM: Lightweight and Ground-Optimized Lidar Odometry and Mapping on Variable Terrain
 //      IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS). October 2018.
 #include "utility.h"
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/filters/extract_indices.h>
+
 #include <gtsam/geometry/Rot3.h>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/slam/PriorFactor.h>
@@ -76,7 +75,7 @@ private:
     ros::Subscriber subLaserCloudSurfLast;
     ros::Subscriber subOutlierCloudLast;
     ros::Subscriber subLaserOdometry;
-    //ros::Subscriber subImu;
+    ros::Subscriber subImu;
 
     nav_msgs::Odometry odomAftMapped;
     tf::StampedTransform aftMappedTrans;
@@ -240,7 +239,7 @@ public:
         subLaserCloudSurfLast = nh.subscribe<sensor_msgs::PointCloud2>("/laser_cloud_surf_last", 2, &mapOptimization::laserCloudSurfLastHandler, this);
         subOutlierCloudLast = nh.subscribe<sensor_msgs::PointCloud2>("/outlier_cloud_last", 2, &mapOptimization::laserCloudOutlierLastHandler, this);
         subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/laser_odom_to_init", 5, &mapOptimization::laserOdometryHandler, this);
-        //subImu = nh.subscribe<sensor_msgs::Imu> (imuTopic, 50, &mapOptimization::imuHandler, this);
+        subImu = nh.subscribe<sensor_msgs::Imu> (imuTopic, 50, &mapOptimization::imuHandler, this);
 
         pubHistoryKeyFrames = nh.advertise<sensor_msgs::PointCloud2>("/history_cloud", 2);
         pubIcpKeyFrames = nh.advertise<sensor_msgs::PointCloud2>("/corrected_cloud", 2);
@@ -729,45 +728,8 @@ public:
             publishGlobalMap();
         }
         // save final point cloud
-        pcl::io::savePCDFileASCII("/tmp/finalCloud.pcd", *globalMapKeyFramesDS);
-        pcl::io::savePCDFileBinary ("/tmp/finalCloud.pcd", *globalMapKeyFramesDS);
-        //////////////////////////////////////////////////////
-        pcl::PointCloud<PointType>::Ptr groundPointCloud(new pcl::PointCloud<PointType>());
+        pcl::io::savePCDFileASCII(fileDirectory+"finalCloud.pcd", *globalMapKeyFramesDS);
 
-        // Set the parameters for RANSAC ground segmentation
-        pcl::SACSegmentation<PointType> seg;
-        seg.setOptimizeCoefficients(true);
-        seg.setModelType(pcl::SACMODEL_PLANE);
-        seg.setMethodType(pcl::SAC_RANSAC);
-        seg.setMaxIterations(100);
-        seg.setDistanceThreshold(0.3); // Adjust this threshold as needed
-
-        // Perform RANSAC ground segmentation
-        pcl::PointIndices::Ptr inlierIndices(new pcl::PointIndices());
-        pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
-        seg.setInputCloud(globalMapKeyFramesDS);
-        seg.segment(*inlierIndices, *coefficients);
-
-        // Extract ground points using inlier indices
-        pcl::ExtractIndices<PointType> extract;
-        extract.setInputCloud(globalMapKeyFramesDS);
-        extract.setIndices(inlierIndices);
-        extract.setNegative(false);
-        extract.filter(*groundPointCloud);
-
-        // Save ground point cloud
-        if (!groundPointCloud->empty()) {
-            pcl::io::savePCDFileASCII("/tmp/groundPointCloud.pcd", *groundPointCloud);
-            pcl::io::savePCDFileASCII ("/tmp/finalCloud.pcd", *groundPointCloud);
-        } else {
-            std::cout << "No ground points found!" << std::endl;
-        }
-
-
-
-
-
-        ///////////////////////////////////
         string cornerMapString = "/tmp/cornerMap.pcd";
         string surfaceMapString = "/tmp/surfaceMap.pcd";
         string trajectoryString = "/tmp/trajectory.pcd";
@@ -779,8 +741,8 @@ public:
         
         for(int i = 0; i < cornerCloudKeyFrames.size(); i++) {
             *cornerMapCloud  += *transformPointCloud(cornerCloudKeyFrames[i],   &cloudKeyPoses6D->points[i]);
-            *surfaceMapCloud += *transformPointCloud(surfCloudKeyFrames[i],     &cloudKeyPoses6D->points[i]);
-            *surfaceMapCloud += *transformPointCloud(outlierCloudKeyFrames[i],  &cloudKeyPoses6D->points[i]);
+    	    *surfaceMapCloud += *transformPointCloud(surfCloudKeyFrames[i],     &cloudKeyPoses6D->points[i]);
+    	    *surfaceMapCloud += *transformPointCloud(outlierCloudKeyFrames[i],  &cloudKeyPoses6D->points[i]);
         }
 
         downSizeFilterCorner.setInputCloud(cornerMapCloud);
